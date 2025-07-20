@@ -80,7 +80,7 @@ const LogoAnimation = () => {
             logoMarkRef.current,
             {
                 opacity: 0,
-                scale: 0.2,
+                scale: 0.4,
                 y: 80,
                 x: 0,
                 left: "50%",
@@ -93,7 +93,7 @@ const LogoAnimation = () => {
                 opacity: 1,
                 scale: 1,
                 y: 0,
-                duration: 1.2,
+                duration: 0.35,
                 ease: "bounce.out",
                 left: "50%",
                 top: "50%",
@@ -104,13 +104,12 @@ const LogoAnimation = () => {
         );
 
         // 2. Move logo mark horizontally to the left (from center to left in flex row)
-        // Only animate the horizontal (x) position, keep y unchanged
         tl.to(
             logoMarkRef.current,
             {
                 left: 0,
                 xPercent: 0,
-                x: "-70",
+                x: "-30",
                 position: "absolute",
                 duration: 0.5,
                 ease: "power2.inOut"
@@ -123,7 +122,7 @@ const LogoAnimation = () => {
                 x: 0,
                 left: 0,
                 xPercent: 0,
-                clearProps: "all", // clean up inline styles for flex row
+                clearProps: "all",
                 duration: 0.01
             }
         );
@@ -144,42 +143,53 @@ const LogoAnimation = () => {
             "-=0.2"
         );
 
-        // 4. Animate each SVG group (letter/word) fading in one by one,
-        // except the last letter "n", which will bounce in instead of fading.
+        // 4. Animate each SVG group (letter/word) one by one:
+        // Each letter appears one by one, except the last letter "n" which bounces in.
+        let letterIndex = 0;
         svgGroupRefs.current.forEach((ref, i) => {
             if (!ref) return; // skip gap
-            // If this is the last group (the "n"), bounce it in
-            if (i === svgGroupRefs.current.length - 1) {
+            // Find the last non-gap index for "n"
+            let lastLetterIndex = svgGroupRefs.current.length - 1;
+            while (lastLetterIndex >= 0 && !svgGroupRefs.current[lastLetterIndex]) {
+                lastLetterIndex--;
+            }
+            if (i === lastLetterIndex) {
+                // "n" bounces in
                 tl.fromTo(
                     ref,
                     {
                         opacity: 0,
-                        y: -60,
+                        y: -40,
                         scale: 0.7,
                     },
                     {
                         opacity: 1,
                         y: 0,
                         scale: 1,
-                        duration: 0.7,
+                        duration: 0.35,
                         ease: "bounce.out"
                     },
-                    "-=0.18" + "+" + (i * 0.09)
+                    "+=" + (letterIndex === 0 ? 0 : 0.09)
                 );
             } else {
+                // Other letters fade in one by one
                 tl.fromTo(
                     ref,
                     {
+                        y: 10,
                         opacity: 0
+
                     },
                     {
+                        y: 0,
                         opacity: 1,
-                        duration: 0.45,
-                        ease: "power2.out"
+                        duration: 0.28,
+                        ease: "bounce.out"
                     },
-                    "-=0.18" + "+" + (i * 0.09)
+                    "+=" + (letterIndex === 0 ? 0 : 0.09)
                 );
             }
+            letterIndex++;
         });
 
         return () => {
