@@ -187,9 +187,53 @@ const LogoAnimation = () => {
         };
     }, []);
 
+    // Responsive values for logo/text sizes
+    // We'll use window.matchMedia to determine if mobile or desktop
+    // But for SSR safety, fallback to desktop
+    const isMobile = typeof window !== "undefined"
+        ? window.matchMedia("(max-width: 600px)").matches
+        : false;
+
+    // Responsive sizing
+    const logoMarkSize = isMobile ? { width: 48, height: 56 } : { width: 82, height: 96 };
+    const logoTextSize = isMobile
+        ? { width: 210, height: 34, minWidth: 120, minHeight: 20 }
+        : { width: 372, height: 60, minWidth: 200, minHeight: 40 };
+
+    // Responsive margin between logo and text
+    const logoTextMargin = isMobile ? 14 : 30;
+    const logoMarkMarginRight = isMobile ? 16 : 34;
+
+    // Responsive container minHeight
+    const containerMinHeight = isMobile ? 80 : 120;
+
+    // Responsive wrapper: flexDirection stays row, but allow wrapping on very small screens
+    // Responsive fontSize for logoMark (if any text)
+    const logoMarkFontSize = isMobile ? 20 : 36;
+
+    // Responsive SVG style
+    const logoTextSvgStyle = {
+        display: 'block',
+        height: logoTextSize.height,
+        width: logoTextSize.width,
+        minWidth: logoTextSize.minWidth,
+        minHeight: logoTextSize.minHeight,
+        marginLeft: 0,
+        marginRight: 0,
+        overflow: 'visible'
+    };
+
+    // Responsive viewBox for SVG text (keeps the same, but scales down via width/height)
+    // Responsive viewBox for logoMark (keeps the same, but scales down via width/height)
+
+    // Responsive: add a <style> tag for further fine-tuning if needed
+    // (e.g. for very small screens, stack vertically)
+    // We'll add a className to the root for easier targeting
+
     return (
         <div
             ref={containerRef}
+            className="logo-animation-root"
             style={{
                 minHeight: '100vh',
                 minWidth: '100vw',
@@ -200,28 +244,76 @@ const LogoAnimation = () => {
                 overflow: 'hidden'
             }}
         >
+            {/* Responsive CSS for mobile/desktop */}
+            <style>{`
+                .logo-animation-root .logo-animation-flex {
+                    display: flex;
+                    align-items: center;
+                    position: relative;
+                    min-height: ${containerMinHeight}px;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                }
+                @media (max-width: 600px) {
+                    .logo-animation-root .logo-animation-flex {
+                        min-height: 80px;
+                        flex-direction: row;
+                        flex-wrap: wrap;
+                    }
+                    .logo-animation-root .logo-mark {
+                        width: 48px !important;
+                        height: 56px !important;
+                        margin-right: 16px !important;
+                    }
+                    .logo-animation-root .logo-text-wrapper {
+                        margin-left: 14px !important;
+                    }
+                    .logo-animation-root .logo-text-svg {
+                        width: 210px !important;
+                        height: 34px !important;
+                        min-width: 120px !important;
+                        min-height: 20px !important;
+                    }
+                }
+                @media (max-width: 400px) {
+                    .logo-animation-root .logo-animation-flex {
+                        flex-direction: column;
+                        min-height: 60px;
+                        gap: 8px;
+                    }
+                    .logo-animation-root .logo-mark {
+                        margin-right: 0 !important;
+                        margin-bottom: 8px !important;
+                    }
+                    .logo-animation-root .logo-text-wrapper {
+                        margin-left: 0 !important;
+                    }
+                }
+            `}</style>
             <div
+                className="logo-animation-flex"
                 style={{
                     display: 'flex',
                     alignItems: 'center',
                     position: 'relative',
-                    minHeight: 120,
+                    minHeight: containerMinHeight,
                     flexDirection: 'row',
                 }}
             >
                 {/* Logo Mark */}
                 <div
                     ref={logoMarkRef}
+                    className="logo-mark"
                     style={{
-                        width: 82,
-                        height: 96,
+                        width: logoMarkSize.width,
+                        height: logoMarkSize.height,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         background: 'none',
                         borderRadius: '0%',
-                        marginRight: 34,
-                        fontSize: 36,
+                        marginRight: logoMarkMarginRight,
+                        fontSize: logoMarkFontSize,
                         color: '#fff',
                         userSelect: 'none',
                         opacity: 0, // initial state for animation
@@ -235,7 +327,13 @@ const LogoAnimation = () => {
                     }}
                 >
                     {/* SVG logo mark */}
-                    <svg width="82" height="96" viewBox="0 0 82 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg
+                        width={logoMarkSize.width}
+                        height={logoMarkSize.height}
+                        viewBox="0 0 82 96"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
                         <path d="M0 82.4182L11.5633 96L76.2984 41.0439L64.7565 27.4834L81.1458 13.5711L69.5932 0L12.1612 13.5818L4.85807 54.9561L0 82.4182ZM14.5956 15.8738L58.9055 5.405L29.6076 30.2765H57.1224L14.5849 66.3738L4.11068 75.2648L14.5956 15.8738Z" fill="url(#paint0_linear_3234_1658)" />
                         <defs>
                             <linearGradient id="paint0_linear_3234_1658" x1="56.5672" y1="32.3447" x2="7.05617" y2="57.2771" gradientUnits="userSpaceOnUse">
@@ -249,32 +347,25 @@ const LogoAnimation = () => {
                 {/* Logo Text Wrapper */}
                 <div
                     ref={textWrapperRef}
+                    className="logo-text-wrapper"
                     style={{
                         display: 'flex',
                         alignItems: 'center',
                         opacity: 0,
                         transform: 'translateX(60px)',
                         willChange: 'opacity, transform',
-                        marginLeft: 30,
+                        marginLeft: logoTextMargin,
                         zIndex: 1,
                     }}
                 >
                     <svg
-                        width="372"
-                        height="60"
+                        className="logo-text-svg"
+                        width={logoTextSize.width}
+                        height={logoTextSize.height}
                         viewBox="0 0 372 60"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
-                        style={{
-                            display: 'block',
-                            height: 60,
-                            width: 372,
-                            minWidth: 200,
-                            minHeight: 40,
-                            marginLeft: 0,
-                            marginRight: 0,
-                            overflow: 'visible'
-                        }}
+                        style={logoTextSvgStyle}
                     >
                         {LOGO_TEXT.map((group, i) =>
                             group.key === "gap" ? (

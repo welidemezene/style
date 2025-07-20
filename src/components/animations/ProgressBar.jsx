@@ -5,39 +5,58 @@ const ProgressBar = () => {
     const barRef = useRef(null)
     const percentTextRef = useRef(null)
     const [percent, setPercent] = useState(0)
+    const [isMobile, setIsMobile] = useState(false)
+
+    // Responsive check
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 600)
+        }
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
 
     useEffect(() => {
-        // We'll use a single GSAP timeline to synchronize all animations
+        // Responsive values
+        const barTargetWidth = isMobile ? '85%' : '94%'
+        const percentTextTargetLeft = (textWidth) => isMobile
+            ? `calc(92% - ${textWidth}px)`
+            : `calc(96% - ${textWidth}px)`
+
         const percentObj = { value: 0 }
         const textWidth = percentTextRef.current ? percentTextRef.current.offsetWidth : 60
 
         const tl = gsap.timeline()
 
         // Animate bar width and percent value together (duration: 3s)
-        tl.to(barRef.current, { width: '94%', duration: 3, ease: 'power2.inOut' }, 0.1)
+        tl.to(barRef.current, {
+            width: barTargetWidth,
+            duration: 3,
+            ease: 'power2.inOut'
+        }, 0.1)
         tl.to(percentObj, {
             value: 100,
             duration: 3,
             ease: 'power2.inOut',
             onUpdate: () => setPercent(Math.round(percentObj.value))
         }, 0.1)
-        // Animate percent text position: start after 0.3s delay, animate faster (duration: 2.2s)
+        // Animate percent text position responsively
         tl.fromTo(
             percentTextRef.current,
             { left: '0%' },
             {
-                left: `calc(96% - ${textWidth}px)`,
+                left: percentTextTargetLeft(textWidth),
                 duration: 3,
                 ease: 'power2.inOut'
             },
-            0.2// delay start of percent text movement
+            0.2
         )
 
         return () => {
             tl.kill()
         }
-    }, [])
-
+    }, [isMobile])
 
     return (
         <div
@@ -45,17 +64,15 @@ const ProgressBar = () => {
             style={{
                 margin: 0,
                 padding: 0,
-                overflowX: 'hidden', // Prevent horizontal overflow
+                overflowX: 'hidden',
             }}
         >
-            <div style={{ marginright: '40px' }}></div>
             <div
                 className="w-full flex items-center"
                 style={{
                     position: 'relative',
                     margin: 0,
                     padding: 0,
-                    // overflowX: 'hidden', // Prevent horizontal overflow on inner container too
                 }}
             >
                 {/* Progress Bar Container */}
@@ -63,8 +80,8 @@ const ProgressBar = () => {
                     className="bg-white rounded-full overflow-hidden"
                     style={{
                         width: '100%',
-                        height: '6px',
-                        marginLeft: 0,
+                        height: isMobile ? '4px' : '6px',
+                        margin: 0,
                         padding: 0,
                         position: 'relative'
                     }}
@@ -76,7 +93,9 @@ const ProgressBar = () => {
                             height: '100%',
                             width: '0%',
                             background: 'linear-gradient(90deg, #f472b6 0%, #a78bfa 50%, #60a5fa 100%)',
-                            transition: 'width 0.2s'
+                            transition: 'width 0.2s',
+                            margin: 0,
+                            padding: 0,
                         }}
                     ></div>
                 </div>
@@ -97,13 +116,13 @@ const ProgressBar = () => {
                         height: 'fit-content',
                         display: 'flex',
                         alignItems: 'center',
+                        fontSize: isMobile ? '1rem' : '1.125rem',
                     }}
                 >
-
                     {percent}%
                 </span>
             </div>
-        </div >
+        </div>
     )
 }
 
