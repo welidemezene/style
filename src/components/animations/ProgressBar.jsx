@@ -86,13 +86,14 @@ const ProgressBar = () => {
                         position: 'relative'
                     }}
                 >
+
                     <div
                         ref={barRef}
                         className="rounded-full"
                         style={{
                             height: '100%',
                             width: '0%',
-                            background: 'linear-gradient(90deg, #f472b6 0%, #a78bfa 50%, #60a5fa 100%)',
+                            background: 'linear-gradient(270deg, #F5DB47 0.01%, #EA5F6B 46%, #1274BC 99.99%)',
                             transition: 'width 0.2s',
                             margin: 0,
                             padding: 0,
@@ -104,10 +105,7 @@ const ProgressBar = () => {
                     ref={percentTextRef}
                     className="text-lg font-semibold ml-4 flex items-center"
                     style={{
-                        background: 'linear-gradient(90deg, #f472b6 0%, #a78bfa 50%, #60a5fa 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
+                        color: '#000',
                         position: 'absolute',
                         left: 0,
                         top: 0,
