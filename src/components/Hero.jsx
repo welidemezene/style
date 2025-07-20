@@ -41,7 +41,7 @@ const Hero = () => {
             }
         })
         tl.to({}, {
-            duration: 3.5, onComplete: () => {
+            duration: 5.5, onComplete: () => {
                 setShowThird(false)
                 setShowFourth(true)
                 // Start LeftSideSVG and RightSideSVG animation together with MultipleColorLines
