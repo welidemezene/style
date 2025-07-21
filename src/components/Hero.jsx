@@ -3,9 +3,9 @@ import ProgressBar from './animations/ProgressBar'
 import WhiteBackgroundPage from './animations/whitebj'
 import LogoAnimation from './animations/logo'
 import MultipleColorLines from './animations/multiplecolor'
-import LeftSideSVG from './animations/leftside'
+// import LeftSideSVG from './animations/leftside'
 import { gsap } from 'gsap'
-import RightSideSVG from './animations/rightside'
+// import RightSideSVG from './animations/rightside'
 
 /**
  * This component orchestrates a sequence of animations:
@@ -20,10 +20,10 @@ const Hero = () => {
     const [showSecond, setShowSecond] = useState(false)
     const [showThird, setShowThird] = useState(false)
     const [showFourth, setShowFourth] = useState(false)
-    const [showLeftSide, setShowLeftSide] = useState(false)
-    const [showRightSide, setShowRightSide] = useState(false)
-    const leftSideRef = useRef(null)
-    const rightSideRef = useRef(null)
+    // const [showLeftSide, setShowLeftSide] = useState(false)
+    // const [showRightSide, setShowRightSide] = useState(false)
+    // const leftSideRef = useRef(null)
+    // const rightSideRef = useRef(null)
 
     useEffect(() => {
         // Sequence: ProgressBar -> WhiteBackgroundPage -> LogoAnimation -> MultipleColorLines (+ LeftSideSVG & RightSideSVG on top)
@@ -45,8 +45,8 @@ const Hero = () => {
                 setShowThird(false)
                 setShowFourth(true)
                 // Start LeftSideSVG and RightSideSVG animation together with MultipleColorLines
-                setShowLeftSide(true)
-                setShowRightSide(true)
+                // setShowLeftSide(true)
+                // setShowRightSide(true)
             }
         })
         return () => {
@@ -55,6 +55,7 @@ const Hero = () => {
     }, [])
 
     // Animate LeftSideSVG sliding in from left to right, like a progress bar, when showLeftSide is true
+    /*
     useEffect(() => {
         if (showLeftSide && leftSideRef.current) {
             // Start with width 0, animate to 100% over 3.5s
@@ -65,8 +66,10 @@ const Hero = () => {
             )
         }
     }, [showLeftSide])
+    */
 
     // Animate RightSideSVG sliding in from right to left, like a progress bar, when showRightSide is true
+    /*
     useEffect(() => {
         if (showRightSide && rightSideRef.current) {
             // Start with width 0, animate to 100% over 3.5s
@@ -77,6 +80,7 @@ const Hero = () => {
             )
         }
     }, [showRightSide])
+    */
 
     return (
         <div>
@@ -98,6 +102,7 @@ const Hero = () => {
             {showFourth && (
                 <div style={{ position: 'relative', width: '100%' }}>
                     <MultipleColorLines />
+                    {/* 
                     {showLeftSide && (
                         <div
                             ref={leftSideRef}
@@ -134,6 +139,7 @@ const Hero = () => {
                             <RightSideSVG />
                         </div>
                     )}
+                    */}
                 </div>
             )}
         </div>
