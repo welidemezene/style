@@ -80,8 +80,8 @@ const LogoAnimation = () => {
             logoMarkRef.current,
             {
                 opacity: 0,
-                scale: 0.4,
-                y: 80,
+                scale: 0.2,
+                y: 50,
                 x: 0,
                 left: "50%",
                 top: "50%",
@@ -93,7 +93,7 @@ const LogoAnimation = () => {
                 opacity: 1,
                 scale: 1,
                 y: 0,
-                duration: 0.35,
+                duration: 2,
                 ease: "bounce.out",
                 left: "50%",
                 top: "50%",
@@ -109,9 +109,9 @@ const LogoAnimation = () => {
             {
                 left: 0,
                 xPercent: 0,
-                x: "-30",
+                x: "-35",
                 position: "absolute",
-                duration: 0.5,
+                duration: 2,
                 ease: "power2.inOut"
             },
             "+=0.1"
@@ -119,6 +119,7 @@ const LogoAnimation = () => {
             logoMarkRef.current,
             {
                 position: "static",
+                y: 0,
                 x: 0,
                 left: 0,
                 xPercent: 0,
@@ -143,55 +144,114 @@ const LogoAnimation = () => {
             "-=0.2"
         );
 
-        // 4. Animate each SVG group (letter/word) one by one:
-        // Each letter appears one by one, except the last letter "n" which bounces in.
-        let letterIndex = 0;
+        // 4. Animate each SVG group with different entrance effects
+        // 4. Animate each SVG group with different entrance effects
         svgGroupRefs.current.forEach((ref, i) => {
-            if (!ref) return; // skip gap
-            // Find the last non-gap index for "n"
+            if (!ref) return;
+
+            // Find the last non-empty letter
             let lastLetterIndex = svgGroupRefs.current.length - 1;
             while (lastLetterIndex >= 0 && !svgGroupRefs.current[lastLetterIndex]) {
                 lastLetterIndex--;
             }
-            if (i === lastLetterIndex) {
-                // "n" bounces in
-                tl.fromTo(
-                    ref,
+
+            // Check if this is the last letter or the letter 'n'
+            const letterContent = ref.textContent || '';
+            const isLastLetter = i === lastLetterIndex;
+            const isLetterN = letterContent.toLowerCase() === 'n';
+            const shouldBounceMore = isLastLetter || isLetterN;
+
+            // Common animation properties
+            const commonFrom = { opacity: 0 };
+            const commonTo = { opacity: 1, duration: 0.5 };
+
+            if (shouldBounceMore) {
+                // SPECIAL BOUNCE FOR LAST LETTER OR 'n'
+                tl.fromTo(ref,
                     {
-                        opacity: 0,
-                        y: -40,
-                        scale: 0.7,
+                        ...commonFrom,
+                        y: -50,  // Start higher for bigger drop
+                        scale: 0.3,
+                        // rotation: -15
                     },
                     {
-                        opacity: 1,
-                        y: 0,
-                        scale: 1,
-                        duration: 0.35,
-                        ease: "bounce.out"
+                        ...commonTo,
+                        y: 0,   // Overshoot downward
+                        scale: 1.1, // Slightly bigger
+                        // rotation: 5,
+                        duration: 0.8, // Longer duration
+                        ease: "bounce.out",
+                        // onComplete: () => {
+                        //     // Add extra bounces
+                        //     gsap.to(ref, {
+                        //         y: -10,
+                        //         duration: 0.4,
+                        //         repeat: 2,
+                        //         yoyo: true,
+                        //         ease: "sine.inOut"
+                        //     });
+                        // }
                     },
-                    "+=" + (letterIndex === 0 ? 0 : 0.09)
+                    `+=${i === 0 ? 0 : 0.1}` // Slightly longer delay
                 );
             } else {
-                // Other letters fade in one by one
-                tl.fromTo(
-                    ref,
-                    {
-                        y: 10,
-                        opacity: 0
+                // REGULAR LETTER ANIMATIONS
+                const animationType = i % 3; // Cycles through 0-2 for different effects
 
-                    },
-                    {
-                        y: 0,
-                        opacity: 1,
-                        duration: 0.28,
-                        ease: "bounce.out"
-                    },
-                    "+=" + (letterIndex === 0 ? 0 : 0.09)
-                );
+                switch (animationType) {
+                    case 0: // Bounce effect
+                        tl.fromTo(ref,
+                            {
+                                ...commonFrom,
+                                x: 20,
+                                scale: 0.3
+                            },
+                            {
+                                ...commonTo,
+                                x: 0,
+                                scale: 1,
+                                ease: "bounce.out"
+                            },
+                            `+=${i === 0 ? 0 : 0.07}`
+                        );
+                        break;
+
+                    case 1: // Pop-up suddenly
+                        tl.fromTo(ref,
+                            {
+                                ...commonFrom,
+                                y: -30,
+                                scale: 0.3
+                            },
+                            {
+                                ...commonTo,
+                                y: 0,
+                                scale: 1,
+                                ease: "bounce.out"
+                            },
+                            `+=${i === 0 ? 0 : 0.07}`
+                        );
+                        break;
+
+                    case 2: // Fade in from left
+                        tl.fromTo(ref,
+                            {
+                                ...commonFrom,
+                                y: -30,
+                                scale: 0.8
+                            },
+                            {
+                                ...commonTo,
+                                y: 0,
+                                scale: 1,
+                                ease: "power2.out"
+                            },
+                            `+=${i === 0 ? 0 : 0.07}`
+                        );
+                        break;
+                }
             }
-            letterIndex++;
         });
-
         return () => {
             tl.kill();
         };
