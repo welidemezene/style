@@ -159,7 +159,7 @@ const LogoAnimation = () => {
 
             // Common animation properties
             const commonFrom = { opacity: 0 };
-            const commonTo = { opacity: 1, duration: 0.4 };
+            const commonTo = { opacity: 1, duration: 0.37 };
 
             if (isFirstLetter) {
                 // SPECIAL ANIMATION FOR FIRST LETTER - Diagonal swing from top-left
@@ -194,7 +194,7 @@ const LogoAnimation = () => {
                         y: -5, // Overshoot upward
                         scale: 1,
                         // rotation: -5,
-                        duration: 0.6,
+                        duration: 0.4,
                         ease: "bounce.out",
                         // onComplete: () => {
                         //     // Settle into final position
