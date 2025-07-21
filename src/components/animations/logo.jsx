@@ -81,7 +81,7 @@ const LogoAnimation = () => {
             {
                 opacity: 0,
                 scale: 0.2,
-                y: 50,
+                y: 130,
                 x: 0,
                 left: "50%",
                 top: "50%",
@@ -93,7 +93,7 @@ const LogoAnimation = () => {
                 opacity: 1,
                 scale: 1,
                 y: 0,
-                duration: 2,
+                duration: 1,
                 ease: "bounce.out",
                 left: "50%",
                 top: "50%",
@@ -109,9 +109,9 @@ const LogoAnimation = () => {
             {
                 left: 0,
                 xPercent: 0,
-                x: "-35",
+                x: "-40",
                 position: "absolute",
-                duration: 2,
+                duration: 0.5,
                 ease: "power2.inOut"
             },
             "+=0.1"
@@ -119,7 +119,7 @@ const LogoAnimation = () => {
             logoMarkRef.current,
             {
                 position: "static",
-                y: 0,
+
                 x: 0,
                 left: 0,
                 xPercent: 0,
@@ -145,7 +145,6 @@ const LogoAnimation = () => {
         );
 
         // 4. Animate each SVG group with different entrance effects
-        // 4. Animate each SVG group with different entrance effects
         svgGroupRefs.current.forEach((ref, i) => {
             if (!ref) return;
 
@@ -155,60 +154,78 @@ const LogoAnimation = () => {
                 lastLetterIndex--;
             }
 
-            // Check if this is the last letter or the letter 'n'
-            const letterContent = ref.textContent || '';
+            const isFirstLetter = i === 0;
             const isLastLetter = i === lastLetterIndex;
-            const isLetterN = letterContent.toLowerCase() === 'n';
-            const shouldBounceMore = isLastLetter || isLetterN;
 
             // Common animation properties
             const commonFrom = { opacity: 0 };
-            const commonTo = { opacity: 1, duration: 0.5 };
+            const commonTo = { opacity: 1, duration: 0.4 };
 
-            if (shouldBounceMore) {
-                // SPECIAL BOUNCE FOR LAST LETTER OR 'n'
+            if (isFirstLetter) {
+                // SPECIAL ANIMATION FOR FIRST LETTER - Diagonal swing from top-left
                 tl.fromTo(ref,
                     {
                         ...commonFrom,
-                        y: -50,  // Start higher for bigger drop
-                        scale: 0.3,
-                        // rotation: -15
+                        x: 80,
+                        y: 80,
+                        scale: 0.2
                     },
                     {
                         ...commonTo,
-                        y: 0,   // Overshoot downward
-                        scale: 1.1, // Slightly bigger
-                        // rotation: 5,
-                        duration: 0.8, // Longer duration
+                        x: 0,
+                        y: 0,
+                        scale: 1,
+                        ease: "bounce.out"
+                    },
+                    "+=0" // No delay for first letter
+                );
+            }
+            else if (isLastLetter) {
+                // SPECIAL ANIMATION FOR LAST LETTER - Big bounce from bottom
+                tl.fromTo(ref,
+                    {
+                        ...commonFrom,
+                        y: 100,
+                        scale: 0.3,
+                        // rotation: 10
+                    },
+                    {
+                        ...commonTo,
+                        y: -5, // Overshoot upward
+                        scale: 1,
+                        // rotation: -5,
+                        duration: 0.6,
                         ease: "bounce.out",
                         // onComplete: () => {
-                        //     // Add extra bounces
+                        //     // Settle into final position
                         //     gsap.to(ref, {
-                        //         y: -10,
-                        //         duration: 0.4,
-                        //         repeat: 2,
-                        //         yoyo: true,
-                        //         ease: "sine.inOut"
+                        //         y: 0,
+                        //         scale: 1,
+                        //         rotation: 0,
+                        //         duration: 0.4
                         //     });
                         // }
                     },
-                    `+=${i === 0 ? 0 : 0.1}` // Slightly longer delay
+                    `+=0.1`
                 );
-            } else {
-                // REGULAR LETTER ANIMATIONS
-                const animationType = i % 3; // Cycles through 0-2 for different effects
+            }
+            else {
+                // REGULAR LETTER ANIMATIONS (existing pattern)
+                const animationType = i % 2; // Cycles through 0-2 for different effects
 
                 switch (animationType) {
-                    case 0: // Bounce effect
+                    case 0: // Diagonal from top-left
                         tl.fromTo(ref,
                             {
                                 ...commonFrom,
-                                x: 20,
-                                scale: 0.3
+                                // x: -80,
+                                y: -40,
+                                scale: 0.2
                             },
                             {
                                 ...commonTo,
-                                x: 0,
+                                // x: 0,
+                                y: 0,
                                 scale: 1,
                                 ease: "bounce.out"
                             },
@@ -216,12 +233,12 @@ const LogoAnimation = () => {
                         );
                         break;
 
-                    case 1: // Pop-up suddenly
+                    case 1: // Vertical pop-up
                         tl.fromTo(ref,
                             {
                                 ...commonFrom,
-                                y: -30,
-                                scale: 0.3
+                                y: 40,
+                                scale: 0.2
                             },
                             {
                                 ...commonTo,
@@ -233,22 +250,22 @@ const LogoAnimation = () => {
                         );
                         break;
 
-                    case 2: // Fade in from left
-                        tl.fromTo(ref,
-                            {
-                                ...commonFrom,
-                                y: -30,
-                                scale: 0.8
-                            },
-                            {
-                                ...commonTo,
-                                y: 0,
-                                scale: 1,
-                                ease: "power2.out"
-                            },
-                            `+=${i === 0 ? 0 : 0.07}`
-                        );
-                        break;
+                    // case 2: // Fade in from right
+                    //     tl.fromTo(ref,
+                    //         {
+                    //             ...commonFrom,
+                    //             x: 80,
+                    //             scale: 0.2
+                    //         },
+                    //         {
+                    //             ...commonTo,
+                    //             x: 0,
+                    //             scale: 1,
+                    //             ease: "power3.out"
+                    //         },
+                    //         `+=${i === 0 ? 0 : 0.07}`
+                    //     );
+                    //     break;
                 }
             }
         });
