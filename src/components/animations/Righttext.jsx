@@ -17,7 +17,7 @@ const RightTextReveal = () => {
     const SVG_HEIGHT = 164
 
     // Font and layout
-    const fontSize = 40
+    const fontSize = 56
     const textX = 100 // Start text further right, so it can slide in from left
     const textY = 110
 

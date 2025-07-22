@@ -22,8 +22,8 @@ const LeftTextReveal = () => {
     const SVG_HEIGHT = 164
 
     // Font and layout
-    const fontSize = 80 // Slightly smaller to fit in 164px height
-    const textX = 80 + 350 // Move text 100px to the right
+    const fontSize = 100 // Slightly smaller to fit in 164px height
+    const textX = 80 + 300 // Move text 100px to the right
     const textY = 110 // Visually centered for 80px font
 
     // To get the dot close to the text, we use <text> element's getBBox after mount
