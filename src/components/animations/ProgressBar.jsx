@@ -107,7 +107,7 @@ const ProgressBar = () => {
             >
                 {/* Progress Bar Container */}
                 <div
-                    className="bg-white rounded-full overflow-hidden"
+                    className="bg-white overflow-hidden"
                     style={{
                         width: '100vw',
                         height: isMobile ? '4px' : '6px',
@@ -119,7 +119,7 @@ const ProgressBar = () => {
                 >
                     <div
                         ref={barRef}
-                        className="rounded-full"
+                        className=""
                         style={{
                             height: '100%',
                             width: '0%',

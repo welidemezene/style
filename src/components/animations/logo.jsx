@@ -93,7 +93,7 @@ const LogoAnimation = () => {
                 opacity: 1,
                 scale: 1,
                 y: 0,
-                duration: 1,
+                duration: 0.5,
                 ease: "bounce.out",
                 left: "50%",
                 top: "50%",
@@ -111,7 +111,7 @@ const LogoAnimation = () => {
                 xPercent: 0,
                 x: "-40",
                 position: "absolute",
-                duration: 0.5,
+                duration: 0.4,
                 ease: "power2.inOut"
             },
             "+=0.1"
@@ -159,7 +159,7 @@ const LogoAnimation = () => {
 
             // Common animation properties
             const commonFrom = { opacity: 0 };
-            const commonTo = { opacity: 1, duration: 0.37 };
+            const commonTo = { opacity: 1, duration: 0.14 };
 
             if (isFirstLetter) {
                 // SPECIAL ANIMATION FOR FIRST LETTER - Diagonal swing from top-left
@@ -191,10 +191,10 @@ const LogoAnimation = () => {
                     },
                     {
                         ...commonTo,
-                        y: -5, // Overshoot upward
+                        y: 0, // Overshoot upward
                         scale: 1,
                         // rotation: -5,
-                        duration: 0.4,
+                        duration: 0.15,
                         ease: "bounce.out",
                         // onComplete: () => {
                         //     // Settle into final position

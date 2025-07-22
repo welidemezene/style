@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from 'react'
 
 /**
- * Improved understanding for moving text left without clipping:
- * - The text "for Creators" should slide in from the left, but should never be clipped or covered by the SVG edge.
- * - Instead of moving the text's x position left (which can cause it to be outside the SVG viewBox and thus clipped), keep the text within the visible SVG area.
- * - To create a "move left" effect, increase the SVG's width and viewBox, and position the text further right inside the SVG, so that when you animate the group, it slides in but is always visible.
+ * Updated understanding for fade-in:
+ * - The text "新たな常識、ここから始まる。" should fade in as a whole, not slide in.
+ * - No per-letter or mask animation, just a fade-in of the entire text group.
+ * - The SVG background remains visible.
  * - The component should have a top margin of 200px and be left-aligned in its parent.
  */
 
@@ -12,23 +12,22 @@ const ENGLISH_TEXT = ' 新たな常識、ここから始まる。'
 
 const RightTextReveal = () => {
     const groupRef = useRef(null)
-    // Increase SVG width to allow for leftward movement without clipping
-    const SVG_WIDTH = 914 // 614 + 200 extra px for slide-in room
+    const SVG_WIDTH = 914
     const SVG_HEIGHT = 164
 
     // Font and layout
     const fontSize = 56
-    const textX = 100 // Start text further right, so it can slide in from left
+    const textX = 100
     const textY = 110
 
     useEffect(() => {
         if (groupRef.current) {
-            // Start the group off-screen to the left (by 200px)
-            groupRef.current.style.transform = `translateX(-200px)`
-            groupRef.current.style.opacity = 1
+            // Start fully transparent
+            groupRef.current.style.opacity = 0
+            // Fade in after a short delay
             setTimeout(() => {
-                groupRef.current.style.transition = 'transform 1.5s cubic-bezier(0.23, 1, 0.32, 1)'
-                groupRef.current.style.transform = 'translateX(0)'
+                groupRef.current.style.transition = 'opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1)'
+                groupRef.current.style.opacity = 1
             }, 50)
         }
     }, [])
@@ -61,7 +60,7 @@ const RightTextReveal = () => {
                     height="163"
                     fill="url(#pattern0_3026_52315)"
                 /> */}
-                {/* Text as a group, sliding in from the left */}
+                {/* Text as a group, fading in */}
                 <g ref={groupRef} style={{ opacity: 0 }}>
                     <text
                         x={textX}

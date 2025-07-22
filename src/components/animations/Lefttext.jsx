@@ -1,17 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react'
 
 /**
- * Understanding of the design:
- * - The user wants the text "New AiD." to appear as a whole, with no animation on the text itself.
- * - The text should start off-screen (to the left) and slide in as a single object/component, with no per-letter or mask animation.
- * - The dot (".") at the end should be a circle, not a text character, and positioned as if it were a dot.
- * - The SVG background should remain visible behind the text.
- * - No GSAP or animation on the text itself, just a slide-in of the whole text group.
- * - The dot should be visually close to the end of the text, as a period would be.
- * 
- * Modification for this version:
- * - The text and dot are moved 100px to the right (textX + 100).
- * - The dot is placed immediately after the text, as close as a period would be.
+ * Updated understanding for fade-in:
+ * - The text "New AiD." (with the dot as a circle) should fade in as a whole, not slide in.
+ * - No per-letter or mask animation, just a fade-in of the entire text+dot group.
+ * - The dot is a circle, positioned as a period would be.
+ * - The SVG background remains visible.
  */
 
 const ENGLISH_TEXT = 'New AiD' // No dot
@@ -22,9 +16,9 @@ const LeftTextReveal = () => {
     const SVG_HEIGHT = 164
 
     // Font and layout
-    const fontSize = 100 // Slightly smaller to fit in 164px height
-    const textX = 80 + 300 // Move text 100px to the right
-    const textY = 110 // Visually centered for 80px font
+    const fontSize = 100
+    const textX = 80 + 300
+    const textY = 110
 
     // To get the dot close to the text, we use <text> element's getBBox after mount
     const textRef = useRef(null)
@@ -32,12 +26,12 @@ const LeftTextReveal = () => {
 
     useEffect(() => {
         if (groupRef.current) {
-            // Slide the whole group in from off-screen left
-            groupRef.current.style.transform = `translateX(-${SVG_WIDTH}px)`
-            groupRef.current.style.opacity = 1
+            // Start fully transparent
+            groupRef.current.style.opacity = 0
+            // Fade in after a short delay
             setTimeout(() => {
-                groupRef.current.style.transition = 'transform 1.5s cubic-bezier(0.23, 1, 0.32, 1)'
-                groupRef.current.style.transform = 'translateX(0)'
+                groupRef.current.style.transition = 'opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1)'
+                groupRef.current.style.opacity = 1
             }, 50)
         }
     }, [])
@@ -47,10 +41,9 @@ const LeftTextReveal = () => {
         if (textRef.current) {
             const bbox = textRef.current.getBBox()
             const circleRadius = fontSize * 0.11
-            // Place the dot immediately after the text, as close as a period would be
             setDotPos({
-                cx: bbox.x + bbox.width + circleRadius * 0.3, // smaller gap for "right after"
-                cy: bbox.y + bbox.height * 0.82 // visually aligns with baseline
+                cx: bbox.x + bbox.width + circleRadius * 0.3,
+                cy: bbox.y + bbox.height * 0.82
             })
         }
     }, [fontSize, textX, textY])
@@ -84,7 +77,7 @@ const LeftTextReveal = () => {
                 height="163"
                 fill="url(#pattern0_3026_52315)"
             /> */}
-            {/* Text and dot as a group, sliding in from the left */}
+            {/* Text and dot as a group, fading in */}
             <g ref={groupRef} style={{ opacity: 0 }}>
                 <text
                     ref={textRef}
