@@ -8,6 +8,7 @@ import { gsap } from 'gsap'
 import RightSideSVG from './animations/rightside'
 import RightTextReveal from './animations/Righttext'
 import LeftTextReveal from './animations/Lefttext'
+import Model from './animations/Model'
 // import DiagonalPathProgress from './animations/path'
 // import Checkit from "./animations/checkit"
 
@@ -22,12 +23,14 @@ import LeftTextReveal from './animations/Lefttext'
  *    - RightSideSVG slides in (1.5s, after left finishes)
  *    - LeftTextReveal fades in (0.8s, after right side finishes)
  *    - RightTextReveal fades in (0.8s, after left text finishes)
+ *    - Model grid appears after both text reveals
  * 5. DiagonalPathProgress (new, after all above)
  * 
  * Z-index stacking:
  * - MultipleColorLines (background)
  * - LeftSideSVG and RightSideSVG (on top of MultipleColorLines)
  * - LeftTextReveal and RightTextReveal (on top of their respective SVGs)
+ * - Model (on top of all above, after text reveals)
  * - DiagonalPathProgress (on top of all)
  */
 
@@ -48,11 +51,14 @@ const Hero = () => {
     const [showRightSide, setShowRightSide] = useState(false)
     const [showLeftText, setShowLeftText] = useState(false)
     const [showRightText, setShowRightText] = useState(false)
+    // For showing Model after both text reveals
+    const [showModel, setShowModel] = useState(false)
 
     const leftSideRef = useRef(null)
     const rightSideRef = useRef(null)
     const leftTextRef = useRef(null)
     const rightTextRef = useRef(null)
+    const modelRef = useRef(null)
 
     // Animation sequence
     useEffect(() => {
@@ -106,6 +112,8 @@ const Hero = () => {
         tl.to({}, {
             duration: 0.4, onComplete: () => {
                 setMultiColorPhase('text')
+                // After both text reveals, show Model
+                setShowModel(true)
                 // After all, show diagonal path
                 setShowDiagonalPath(true)
             }
@@ -159,6 +167,17 @@ const Hero = () => {
         }
     }, [showRightText])
 
+    // Fade in Model after both text reveals
+    useEffect(() => {
+        if (showModel && modelRef.current) {
+            gsap.fromTo(
+                modelRef.current,
+                { opacity: 0, scale: 0.95 },
+                { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out' }
+            )
+        }
+    }, [showModel])
+
     return (
         <div>
             {showFirst && (
@@ -202,6 +221,28 @@ const Hero = () => {
                     >
                         <Multiplecolorlines phase={multiColorPhase} />
                     </div>
+                    {/* Model appears on top of MultipleColorLines */}
+                    {showModel && (
+                        <div
+                            ref={modelRef}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100vw',
+                                height: '100vh',
+                                zIndex: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                pointerEvents: 'none',
+                                opacity: 0, // Start faded out, gsap will fade in
+                                transition: 'opacity 0.8s',
+                            }}
+                        >
+                            <Model />
+                        </div>
+                    )}
                 </div>
             )}
             {/* Sides and Text Reveals */}

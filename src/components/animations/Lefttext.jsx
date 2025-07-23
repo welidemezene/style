@@ -1,103 +1,131 @@
 import React, { useRef, useEffect, useState } from 'react'
+import newAidImg from '../../images/new_aid.png'
 
 /**
- * Updated understanding for fade-in:
- * - The text "New AiD." (with the dot as a circle) should fade in as a whole, not slide in.
- * - No per-letter or mask animation, just a fade-in of the entire text+dot group.
- * - The dot is a circle, positioned as a period would be.
- * - The SVG background remains visible.
+ * Responsive LeftTextReveal:
+ * - Uses an image for the "New AiD" text.
+ * - Fades in as a whole.
+ * - Responsive: adjusts SVG and image size/position for mobile/tablet/desktop.
+ * - No SVG text or dot, just the image.
+ * - SVG background remains visible if needed.
  */
 
-const ENGLISH_TEXT = 'New AiD' // No dot
+// Responsive breakpoints and image/SVG sizes
+const getResponsiveProps = (width) => {
+    if (width <= 600) {
+        // Mobile
+        return {
+            svgWidth: 340,
+            svgHeight: 80,
+            imageWidth: 180,
+            imageHeight: 44,
+            imageX: 0,
+            imageY: 18,
+            marginTop: 10,
+        }
+    } else if (width <= 1024) {
+        // Tablet
+        return {
+            svgWidth: 600,
+            svgHeight: 120,
+            imageWidth: 280,
+            imageHeight: 70,
+            imageX: 80,
+            imageY: 28,
+            marginTop: 0,
+        }
+    } else {
+        // Desktop
+        return {
+            svgWidth: 914,
+            svgHeight: 164,
+            imageWidth: 420,
+            imageHeight: 120,
+            imageX: 220,
+            imageY: 32,
+            marginTop: 0,
+        }
+    }
+}
 
 const LeftTextReveal = () => {
-    const groupRef = useRef(null)
-    const SVG_WIDTH = 914
-    const SVG_HEIGHT = 164
-
-    // Font and layout
-    const fontSize = 100
-    const textX = 80 + 300
-    const textY = 110
-
-    // To get the dot close to the text, we use <text> element's getBBox after mount
-    const textRef = useRef(null)
-    const [dotPos, setDotPos] = useState({ cx: textX + 350, cy: textY - fontSize * 0.13 })
+    const imgGroupRef = useRef(null)
+    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
+    const [responsive, setResponsive] = useState(getResponsiveProps(window.innerWidth || 1200))
 
     useEffect(() => {
-        if (groupRef.current) {
-            // Start fully transparent
-            groupRef.current.style.opacity = 0
-            // Fade in after a short delay
-            setTimeout(() => {
-                groupRef.current.style.transition = 'opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1)'
-                groupRef.current.style.opacity = 1
-            }, 50)
+        const handleResize = () => {
+            const width = window.innerWidth
+            setWindowWidth(width)
+            setResponsive(getResponsiveProps(width))
         }
+        handleResize()
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
     }, [])
 
-    // After mount, measure the text width and set the dot position
     useEffect(() => {
-        if (textRef.current) {
-            const bbox = textRef.current.getBBox()
-            const circleRadius = fontSize * 0.11
-            setDotPos({
-                cx: bbox.x + bbox.width + circleRadius * 0.3,
-                cy: bbox.y + bbox.height * 0.82
-            })
+        if (imgGroupRef.current) {
+            imgGroupRef.current.style.opacity = 0
+            setTimeout(() => {
+                imgGroupRef.current.style.transition = 'opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1)'
+                imgGroupRef.current.style.opacity = 1
+            }, 50)
         }
-    }, [fontSize, textX, textY])
-
-    const circleRadius = fontSize * 0.11
+    }, [responsive])
 
     return (
-        <svg
-            width={SVG_WIDTH}
-            height={SVG_HEIGHT}
-            viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ display: 'block' }}
+        <div
+            style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+                marginTop: responsive.marginTop,
+                // Prevent horizontal scroll on mobile
+                overflowX: 'hidden',
+            }}
         >
-            <defs>
-                {/* Replace this pattern/gradient with your actual pattern or gradient definition */}
-                <pattern
-                    id="pattern0_3026_52315"
-                    patternContentUnits="objectBoundingBox"
-                    width="1"
-                    height="1"
-                >
-                    <rect x="0" y="0" width="1" height="1" fill="#F0F0F0" />
-                </pattern>
-            </defs>
-            {/* Background rectangle with pattern */}
-            {/* <rect
-                y="0.615234"
-                width="613.647"
-                height="163"
-                fill="url(#pattern0_3026_52315)"
-            /> */}
-            {/* Text and dot as a group, fading in */}
-            <g ref={groupRef} style={{ opacity: 0 }}>
-                <text
-                    ref={textRef}
-                    x={textX}
-                    y={textY}
-                    fontSize={fontSize}
-                    fill="black"
-                    fontWeight="bold"
-                    fontFamily="sans-serif"
-                >
-                    {ENGLISH_TEXT}
-                </text>
-                <circle
-                    cx={dotPos.cx}
-                    cy={dotPos.cy}
-                    r={circleRadius}
-                    fill="black"
-                />
-            </g>
-        </svg>
+            <svg
+                width="100%"
+                height={responsive.svgHeight}
+                viewBox={`0 0 ${responsive.svgWidth} ${responsive.svgHeight}`}
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{
+                    display: 'block',
+                    maxWidth: responsive.svgWidth,
+                    height: responsive.svgHeight,
+                    width: '100%',
+                }}
+                preserveAspectRatio="xMinYMin meet"
+            >
+                {/* Optional: SVG background pattern/rect can be added here if needed */}
+                {/* <rect
+                    y="0"
+                    width={responsive.svgWidth}
+                    height={responsive.svgHeight}
+                    fill="#F0F0F0"
+                /> */}
+                <g ref={imgGroupRef} style={{ opacity: 0 }}>
+                    <image
+                        href={newAidImg}
+                        x={responsive.imageX}
+                        y={responsive.imageY}
+                        width={responsive.imageWidth}
+                        height={responsive.imageHeight}
+                        style={{
+                            display: 'block',
+                            pointerEvents: 'none',
+                            userSelect: 'none'
+                        }}
+                        alt="New AiD"
+                        aria-label="New AiD"
+                        draggable="false"
+                    />
+                </g>
+            </svg>
+        </div>
     )
 }
 
