@@ -20,7 +20,7 @@ const ProgressBar = () => {
 
     useEffect(() => {
         // Fixed gap between bar end and text (in pixels)
-        const fixedGap = 15 // Always 10px as per instruction
+        const fixedGap = 30 // Always 10px as per instruction
         // Gap to the right of the progress bar (in pixels)
         const rightGap = isMobile ? 24 : 40
 
@@ -111,7 +111,7 @@ const ProgressBar = () => {
                     style={{
                         width: '100vw',
                         height: isMobile ? '4px' : '6px',
-                        marginRight: 0,
+                        marginRight: '80px',
                         padding: 0,
                         position: 'relative',
                         backgroundColor: 'white'
