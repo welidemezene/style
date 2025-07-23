@@ -87,7 +87,7 @@ const Hero = () => {
         })
         // 4a. MultipleColorLines progress (2.7s)
         tl.to({}, {
-            duration: 2.7, onComplete: () => {
+            duration: 2.4, onComplete: () => {
                 setMultiColorPhase('sides')
                 setShowSides(true)
             }
