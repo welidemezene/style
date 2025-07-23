@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from 'react'
 import ProgressBar from './animations/ProgressBar'
 import WhiteBackgroundPage from './animations/whitebj'
 import LogoAnimation from './animations/logo'
-import MultipleColorLines from './animations/multiplecolor'
+import Multiplecolorlines from './animations/MultipleColorDiagonal'
 import LeftSideSVG from './animations/leftside'
 import { gsap } from 'gsap'
 import RightSideSVG from './animations/rightside'
 import RightTextReveal from './animations/Righttext'
 import LeftTextReveal from './animations/Lefttext'
+// import DiagonalPathProgress from './animations/path'
+// import Checkit from "./animations/checkit"
 
 /**
  * Animation sequence (updated for staggered left/right sides and text):
@@ -20,11 +22,13 @@ import LeftTextReveal from './animations/Lefttext'
  *    - RightSideSVG slides in (1.5s, after left finishes)
  *    - LeftTextReveal fades in (0.8s, after right side finishes)
  *    - RightTextReveal fades in (0.8s, after left text finishes)
+ * 5. DiagonalPathProgress (new, after all above)
  * 
  * Z-index stacking:
  * - MultipleColorLines (background)
  * - LeftSideSVG and RightSideSVG (on top of MultipleColorLines)
  * - LeftTextReveal and RightTextReveal (on top of their respective SVGs)
+ * - DiagonalPathProgress (on top of all)
  */
 
 const Hero = () => {
@@ -34,6 +38,7 @@ const Hero = () => {
     const [showThird, setShowThird] = useState(false) // LogoAnimation
     const [showMultiColor, setShowMultiColor] = useState(false) // MultipleColorLines
     const [showSides, setShowSides] = useState(false) // Left/Right Side SVGs
+    const [showDiagonalPath, setShowDiagonalPath] = useState(false) // DiagonalPathProgress
 
     // For controlling the progress of MultipleColorLines, Sides, and Text
     const [multiColorPhase, setMultiColorPhase] = useState('none') // 'progress', 'sides', 'text'
@@ -74,9 +79,9 @@ const Hero = () => {
                 setMultiColorPhase('progress')
             }
         })
-        // 4a. MultipleColorLines progress (5.5s)
+        // 4a. MultipleColorLines progress (2.7s)
         tl.to({}, {
-            duration: 3.7, onComplete: () => {
+            duration: 2.7, onComplete: () => {
                 setMultiColorPhase('sides')
                 setShowSides(true)
             }
@@ -101,7 +106,8 @@ const Hero = () => {
         tl.to({}, {
             duration: 0.4, onComplete: () => {
                 setMultiColorPhase('text')
-                // Optionally, you could hide everything or trigger next step
+                // After all, show diagonal path
+                setShowDiagonalPath(true)
             }
         })
         return () => {
@@ -194,7 +200,7 @@ const Hero = () => {
                             pointerEvents: 'auto',
                         }}
                     >
-                        <MultipleColorLines phase={multiColorPhase} />
+                        <Multiplecolorlines phase={multiColorPhase} />
                     </div>
                 </div>
             )}
@@ -223,7 +229,7 @@ const Hero = () => {
                             pointerEvents: 'auto',
                         }}
                     >
-                        <MultipleColorLines phase={multiColorPhase} />
+                        <Multiplecolorlines phase={multiColorPhase} />
                     </div>
                     {/* Left Side SVG */}
                     {showLeftSide && (
@@ -303,6 +309,22 @@ const Hero = () => {
                     )}
                 </div>
             )}
+            {/* Diagonal Path Progress - after all above */}
+            {/* {showDiagonalPath && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        zIndex: 1200,
+                        pointerEvents: 'none',
+                    }}
+                >
+                    <DiagonalPathProgress />
+                </div>
+            )} */}
         </div>
     )
 }
