@@ -8,34 +8,16 @@ import { gsap } from 'gsap'
 import RightSideSVG from './animations/rightside'
 import RightTextReveal from './animations/Righttext'
 import LeftTextReveal from './animations/Lefttext'
-// import Model from './animations/Model' // Model page import commented out
 import DiagonalText from './animations/Diagonaltext'
-// import DiagonalPathProgress from './animations/path'
-// import Checkit from "./animations/checkit"
 
-/**
- * Animation sequence (updated for staggered left/right sides and text):
- * 1. ProgressBar (3.5s)
- * 2. WhiteBackgroundPage (0.5s)
- * 3. LogoAnimation (7.5s)
- * 4. MultipleColorLines (12s) - divided:
- *    - MultipleColorLines progress: 7s
- *    - DiagonalText appears on top of MultipleColorLines, before sides
- *    - LeftSideSVG slides in (1.5s)
- *    - RightSideSVG slides in (1.5s, after left finishes)
- *    - LeftTextReveal fades in (0.8s, after right side finishes)
- *    - RightTextReveal fades in (0.8s, after left text finishes)
- *    - Model grid appears after both text reveals
- * 5. DiagonalPathProgress (new, after all above)
- * 
- * Z-index stacking:
- * - MultipleColorLines (background)
- * - DiagonalText (on top of MultipleColorLines, before sides)
- * - LeftSideSVG and RightSideSVG (on top of MultipleColorLines)
- * - LeftTextReveal and RightTextReveal (on top of their respective SVGs)
- * - Model (on top of all above, after text reveals)
- * - DiagonalPathProgress (on top of all)
- */
+import Model01 from './animations/model01'
+import Model02 from './animations/model02'
+import Model03 from './animations/Model03'
+import Model04 from './animations/Model04'
+import Model05 from './animations/Model05'
+import Model06 from './animations/Model06'
+import Model07 from './animations/Model07'
+import Model08 from './animations/Model08'
 
 const Hero = () => {
     // Step states
@@ -44,7 +26,6 @@ const Hero = () => {
     const [showThird, setShowThird] = useState(false) // LogoAnimation
     const [showMultiColor, setShowMultiColor] = useState(false) // MultipleColorLines
     const [showSides, setShowSides] = useState(false) // Left/Right Side SVGs
-    const [showDiagonalPath, setShowDiagonalPath] = useState(false) // DiagonalPathProgress
 
     // For controlling the progress of MultipleColorLines, Sides, and Text
     const [multiColorPhase, setMultiColorPhase] = useState('none') // 'progress', 'sides', 'text'
@@ -54,14 +35,24 @@ const Hero = () => {
     const [showRightSide, setShowRightSide] = useState(false)
     const [showLeftText, setShowLeftText] = useState(false)
     const [showRightText, setShowRightText] = useState(false)
-    // For showing Model after both text reveals
-    const [showModel, setShowModel] = useState(false)
+
+    // Show models after both text reveals
+    const [showModels, setShowModels] = useState(false)
+
+    // Individual model display states
+    const [showModel08, setShowModel08] = useState(false)
+    const [showModel01, setShowModel01] = useState(false)
+    const [showModel05, setShowModel05] = useState(false)
+    const [showModel04, setShowModel04] = useState(false)
+    const [showModel03, setShowModel03] = useState(false)
+    const [showModel02, setShowModel02] = useState(false)
+    const [showModel06, setShowModel06] = useState(false)
+    const [showModel07, setShowModel07] = useState(false)
 
     const leftSideRef = useRef(null)
     const rightSideRef = useRef(null)
     const leftTextRef = useRef(null)
     const rightTextRef = useRef(null)
-    const modelRef = useRef(null)
 
     // Animation sequence
     useEffect(() => {
@@ -86,10 +77,9 @@ const Hero = () => {
                 setShowThird(false)
                 setShowMultiColor(true)
                 setMultiColorPhase('progress')
-                // DiagonalText will be shown together with MultipleColorLines
             }
         })
-        // 4a. MultipleColorLines progress (2.4s)
+        // 4a. MultipleColorLines progress (2.0s)
         tl.to({}, {
             duration: 2.0, onComplete: () => {
                 setMultiColorPhase('sides')
@@ -118,10 +108,7 @@ const Hero = () => {
         tl.to({}, {
             duration: 0.4, onComplete: () => {
                 setMultiColorPhase('text')
-                // After both text reveals, show Model
-                setShowModel(true)
-                // After all, show diagonal path
-                setShowDiagonalPath(true)
+                setShowModels(true)
             }
         })
         return () => {
@@ -173,16 +160,33 @@ const Hero = () => {
         }
     }, [showRightText])
 
-    // Fade in Model after both text reveals
+    // Show each model with a different delay (0.04s increment per model)
     useEffect(() => {
-        if (showModel && modelRef.current) {
-            gsap.fromTo(
-                modelRef.current,
-                { opacity: 0, scale: 0.95 },
-                { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out' }
-            )
+        let timers = []
+        if (showModels) {
+            // Order: 08, 01, 05, 04, 03, 02, 06, 07
+            timers.push(setTimeout(() => setShowModel08(true), 0))
+            timers.push(setTimeout(() => setShowModel01(true), 40))
+            timers.push(setTimeout(() => setShowModel05(true), 80))
+            timers.push(setTimeout(() => setShowModel04(true), 120))
+            timers.push(setTimeout(() => setShowModel03(true), 160))
+            timers.push(setTimeout(() => setShowModel02(true), 200))
+            timers.push(setTimeout(() => setShowModel06(true), 240))
+            timers.push(setTimeout(() => setShowModel07(true), 280))
+        } else {
+            setShowModel08(false)
+            setShowModel01(false)
+            setShowModel05(false)
+            setShowModel04(false)
+            setShowModel03(false)
+            setShowModel02(false)
+            setShowModel06(false)
+            setShowModel07(false)
         }
-    }, [showModel])
+        return () => {
+            timers.forEach(clearTimeout)
+        }
+    }, [showModels])
 
     return (
         <div>
@@ -227,20 +231,6 @@ const Hero = () => {
                     >
                         <Multiplecolorlines phase={multiColorPhase} />
                     </div>
-                    {/* DiagonalText is shown together with MultipleColorLines */}
-                    {/* <div
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100vw',
-                            height: '100vh',
-                            zIndex: 2, // On top of MultipleColorLines
-                            pointerEvents: 'none',
-                        }}
-                    >
-                        <DiagonalText />
-                    </div> */}
                 </div>
             )}
             {/* Sides and Text Reveals */}
@@ -278,7 +268,7 @@ const Hero = () => {
                             left: 0,
                             width: '100vw',
                             height: '100vh',
-                            zIndex: 2, // On top of MultipleColorLines
+                            zIndex: 2,
                             pointerEvents: 'none',
                         }}
                     >
@@ -314,7 +304,7 @@ const Hero = () => {
                                         transform: 'translateY(-50%)',
                                         zIndex: 4,
                                         pointerEvents: 'none',
-                                        opacity: 0, // Start faded out, gsap will fade in
+                                        opacity: 0,
                                     }}
                                 >
                                     <LeftTextReveal />
@@ -352,7 +342,7 @@ const Hero = () => {
                                         transform: 'translateY(-50%)',
                                         zIndex: 4,
                                         pointerEvents: 'none',
-                                        opacity: 0, // Start faded out, gsap will fade in
+                                        opacity: 0,
                                     }}
                                 >
                                     <RightTextReveal />
@@ -360,10 +350,21 @@ const Hero = () => {
                             )}
                         </div>
                     )}
+                    {/* Show models in sequence with 0.04s delay for each */}
+                    {showModels && (
+                        <div>
+                            {showModel08 && <Model08 />}
+                            {showModel01 && <Model01 />}
+                            {showModel05 && <Model05 />}
+                            {showModel04 && <Model04 />}
+                            {showModel03 && <Model03 />}
+                            {showModel02 && <Model02 />}
+                            {showModel06 && <Model06 />}
+                            {showModel07 && <Model07 />}
+                        </div>
+                    )}
                 </div>
             )}
-            {/* Diagonal Path Progress - after all above */}
-
         </div>
     )
 }
