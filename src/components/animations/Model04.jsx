@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import model01 from '../../images/model_04.png';
+// import model01 from './images/model_04.png';
+
+const model01 = './images/model_04.png';
 
 // Helper to get responsive style values
 const getResponsiveStyles = () => {
