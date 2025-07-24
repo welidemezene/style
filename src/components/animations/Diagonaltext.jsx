@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { getPlatformInfo, getSafeViewportHeight, getSafeViewportWidth, createResizeHandler } from '../../utils/platformUtils';
 
 // Responsive helper: get device type and rotate angle/font size
 const getResponsiveProps = (width) => {
@@ -86,12 +87,13 @@ const DiagonalText = () => {
     const [positions, setPositions] = useState(getPositions(windowWidth));
 
     useEffect(() => {
-        const handleResize = () => {
+        const handleResize = createResizeHandler(() => {
             const width = window.innerWidth;
             setWindowWidth(width);
             setResponsive(getResponsiveProps(width));
             setPositions(getPositions(width));
-        };
+        }, 150); // Debounce resize for better performance
+        
         window.addEventListener('resize', handleResize);
         // Initial set
         handleResize();
@@ -99,18 +101,33 @@ const DiagonalText = () => {
     }, []);
 
     useEffect(() => {
+        const platformInfo = getPlatformInfo();
+        
         refs.current.forEach((el, i) => {
             if (el) {
+                // Set initial hardware acceleration for WebKit
+                gsap.set(el, {
+                    force3D: true,
+                    ...(platformInfo.isWebKit && {
+                        WebkitBackfaceVisibility: 'hidden',
+                        WebkitTransform: 'translateZ(0)',
+                    }),
+                });
+
                 gsap.fromTo(
                     el,
-                    { opacity: 0, y: 40, x: -40 },
+                    { 
+                        opacity: 0, 
+                        y: platformInfo.isMac ? 35 : 40, 
+                        x: platformInfo.isMac ? -35 : -40 
+                    },
                     {
                         opacity: 1,
                         y: 0,
                         x: 0,
-                        duration: 1,
-                        delay: i * 0.25,
-                        ease: "power2.out",
+                        duration: platformInfo.isWebKit ? 0.9 : 1,
+                        delay: i * (platformInfo.isMac ? 0.22 : 0.25),
+                        ease: platformInfo.isWebKit ? "power2.out" : "power2.out",
                     }
                 );
             }
@@ -123,8 +140,8 @@ const DiagonalText = () => {
                 position: 'fixed',
                 top: 0,
                 left: 0,
-                width: '100vw',
-                height: '100vh',
+                width: getSafeViewportWidth(),
+                height: getSafeViewportHeight(),
                 overflow: 'hidden',
                 zIndex: 1100,
                 pointerEvents: 'none',

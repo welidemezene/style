@@ -17,6 +17,7 @@ import Model05 from './animations/Model05'
 import Model06 from './animations/Model06'
 import Model07 from './animations/Model07'
 import Model08 from './animations/Model08'
+import { getPlatformInfo, getSafeViewportHeight, getSafeViewportWidth } from '../utils/platformUtils'
 
 const Hero = () => {
     // Step states
@@ -55,10 +56,15 @@ const Hero = () => {
 
     // Animation sequence
     useEffect(() => {
+        const platformInfo = getPlatformInfo()
         const tl = gsap.timeline()
+        
+        // Adjust timing for Mac/WebKit for smoother performance
+        const timingMultiplier = platformInfo.isMac ? 0.95 : 1
+        
         // 1. ProgressBar (3.5s)
         tl.to({}, {
-            duration: 3.7, onComplete: () => {
+            duration: 3.7 * timingMultiplier, onComplete: () => {
                 setShowFirst(false)
                 setShowSecond(true)
             }
@@ -121,7 +127,7 @@ const Hero = () => {
             gsap.fromTo(
                 leftSideRef.current,
                 { width: 0, opacity: 1 },
-                { width: '100vw', duration: 0.8, ease: 'power2.inOut' }
+                { width: getSafeViewportWidth(), duration: 0.8, ease: 'power2.inOut' }
             )
         }
     }, [showLeftSide])
@@ -132,7 +138,7 @@ const Hero = () => {
             gsap.fromTo(
                 rightSideRef.current,
                 { width: 0, opacity: 1 },
-                { width: '100vw', duration: 0.8, ease: 'power2.inOut' }
+                { width: getSafeViewportWidth(), duration: 0.8, ease: 'power2.inOut' }
             )
         }
     }, [showRightSide])
@@ -211,8 +217,8 @@ const Hero = () => {
                         position: 'fixed',
                         top: 0,
                         left: 0,
-                        width: '100vw',
-                        height: '100vh',
+                        width: getSafeViewportWidth(),
+                        height: getSafeViewportHeight(),
                         zIndex: 1000,
                         pointerEvents: 'none',
                     }}
@@ -222,8 +228,8 @@ const Hero = () => {
                             position: 'absolute',
                             top: 0,
                             left: 0,
-                            width: '100vw',
-                            height: '100vh',
+                            width: getSafeViewportWidth(),
+                            height: getSafeViewportHeight(),
                             zIndex: 1,
                             pointerEvents: 'auto',
                         }}
@@ -239,8 +245,8 @@ const Hero = () => {
                         position: 'fixed',
                         top: 0,
                         left: 0,
-                        width: '100vw',
-                        height: '100vh',
+                        width: getSafeViewportWidth(),
+                        height: getSafeViewportHeight(),
                         zIndex: 1100,
                         pointerEvents: 'none',
                     }}
@@ -251,8 +257,8 @@ const Hero = () => {
                             position: 'absolute',
                             top: 0,
                             left: 0,
-                            width: '100vw',
-                            height: '100vh',
+                            width: getSafeViewportWidth(),
+                            height: getSafeViewportHeight(),
                             zIndex: 1,
                             pointerEvents: 'auto',
                         }}
@@ -265,8 +271,8 @@ const Hero = () => {
                             position: 'absolute',
                             top: 0,
                             left: 0,
-                            width: '100vw',
-                            height: '100vh',
+                            width: getSafeViewportWidth(),
+                            height: getSafeViewportHeight(),
                             zIndex: 2,
                             pointerEvents: 'none',
                         }}
@@ -282,7 +288,7 @@ const Hero = () => {
                                 top: 0,
                                 left: 0,
                                 width: 0,
-                                height: '100vh',
+                                height: getSafeViewportHeight(),
                                 overflow: 'hidden',
                                 zIndex: 3,
                                 pointerEvents: 'none',
@@ -320,7 +326,7 @@ const Hero = () => {
                                 top: 0,
                                 right: 0,
                                 width: 0,
-                                height: '100vh',
+                                height: getSafeViewportHeight(),
                                 overflow: 'hidden',
                                 zIndex: 3,
                                 pointerEvents: 'none',

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { gsap } from 'gsap'
+import { getPlatformInfo, createResizeHandler } from '../../utils/platformUtils'
 
 /**
  * Responsive LeftSideSVG:
@@ -42,11 +43,12 @@ const LeftSideSVG = () => {
     const [responsive, setResponsive] = useState(getResponsiveProps(window.innerWidth || 1200))
 
     useEffect(() => {
-        const handleResize = () => {
+        const handleResize = createResizeHandler(() => {
             const width = window.innerWidth
             setWindowWidth(width)
             setResponsive(getResponsiveProps(width))
-        }
+        }, 100) // Debounced for better performance
+        
         handleResize()
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
@@ -54,10 +56,29 @@ const LeftSideSVG = () => {
 
     useEffect(() => {
         if (svgRef.current) {
+            const platformInfo = getPlatformInfo()
+            
+            // Set hardware acceleration for WebKit
+            gsap.set(svgRef.current, {
+                force3D: true,
+                ...(platformInfo.isWebKit && {
+                    WebkitBackfaceVisibility: 'hidden',
+                    WebkitTransform: 'translateZ(0)',
+                }),
+            });
+
             gsap.fromTo(
                 svgRef.current,
-                { opacity: 0, x: -100 },
-                { opacity: 1, x: 0, duration: 1.5, ease: 'power2.out' }
+                { 
+                    opacity: 0, 
+                    x: platformInfo.isMac ? -90 : -100 
+                },
+                { 
+                    opacity: 1, 
+                    x: 0, 
+                    duration: platformInfo.isWebKit ? 1.3 : 1.5, 
+                    ease: 'power2.out' 
+                }
             )
         }
     }, [responsive])

@@ -56,9 +56,19 @@
     }
 
     .model-image {
-        width: 90vw;
-        height: 40vw;
+        width: min(90vw, 320px);
+        height: min(40vw, 220px);
         max-width: 320px;
         max-height: 220px;
+        /* Add platform-specific adjustments */
+        aspect-ratio: 3/2;
+    }
+    
+    /* Safari/Mac specific fixes */
+    @supports (-webkit-appearance: none) {
+        .model-image {
+            width: min(calc(100vw - 2rem), 320px);
+            height: auto;
+        }
     }
 }
