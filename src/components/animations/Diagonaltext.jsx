@@ -1,5 +1,28 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+
+// Responsive helper: get device type and rotate angle/font size
+const getResponsiveProps = (width) => {
+    if (width <= 600) {
+        // Mobile
+        return {
+            rotate: -73,
+            fontSize: '0.85rem',
+        };
+    } else if (width <= 1024) {
+        // Tablet
+        return {
+            rotate: -50,
+            fontSize: '1rem',
+        };
+    } else {
+        // Desktop
+        return {
+            rotate: -35.0,
+            fontSize: '1.15rem',
+        };
+    }
+};
 
 const sentences = [
     "In order to remain a company that genuinely and sincerely supports all those with whom we have a connection,",
@@ -16,24 +39,64 @@ const sentences = [
     // "Stars twinkle above, promising tomorrow.",
 ];
 
-// Predefine diagonal positions for each sentence
-const diagonalPositions = [
-    { top: '10%', left: '4.7%', bottom: '10%' },
-    { top: '0', left: '33.7%' },
-    // { top: '0%', left: '24.5%' },
-    { top: '50%', left: '10.3%', bottom: '0%' },
-    { top: '30%', left: '34%' },
-    { top: '70%', left: '69%' },
+// Responsive diagonal positions for each sentence
+const diagonalPositionsDesktop = [
+    { top: '50%', left: '1%', bottom: '10%' },
+    { top: '0', left: '39%' },
+    { top: '50%', left: '9%', bottom: '0%' },
+    { top: '30%', left: '36%' },
+    { top: '70%', left: '73%' },
     { top: '30%', left: '48%' },
-    // { top: '66%', left: '55%' },
-    // { top: '74%', left: '45%' },
-    // { top: '85%', left: '24%' },
     { top: '78%', left: '0%', bottom: '-10%' },
     { top: '30%', left: '60%' },
 ];
+const diagonalPositionsTablet = [
+    { top: '8%', left: '2.5%' },
+    { top: '2%', left: '24%' },
+    { top: '48%', left: '7%' },
+    { top: '28%', left: '25%' },
+    { top: '68%', left: '60%' },
+    { top: '28%', left: '38%' },
+    { top: '75%', left: '0%' },
+    { top: '28%', left: '50%' },
+];
+const diagonalPositionsMobile = [
+    { top: '6%', left: '1%' },
+    { top: '1%', left: '10%' },
+    { top: '44%', left: '3%' },
+    { top: '22%', left: '16%' },
+    { top: '62%', left: '38%' },
+    { top: '22%', left: '28%' },
+    { top: '70%', left: '0%' },
+    { top: '22%', left: '44%' },
+];
+
+const getPositions = (width) => {
+    if (width <= 600) return diagonalPositionsMobile;
+    if (width <= 1024) return diagonalPositionsTablet;
+    return diagonalPositionsDesktop;
+};
 
 const DiagonalText = () => {
     const refs = useRef([]);
+    const [windowWidth, setWindowWidth] = useState(
+        typeof window !== 'undefined' ? window.innerWidth : 1200
+    );
+    const [responsive, setResponsive] = useState(getResponsiveProps(windowWidth));
+    const [positions, setPositions] = useState(getPositions(windowWidth));
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            setWindowWidth(width);
+            setResponsive(getResponsiveProps(width));
+            setPositions(getPositions(width));
+        };
+        window.addEventListener('resize', handleResize);
+        // Initial set
+        handleResize();
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         refs.current.forEach((el, i) => {
@@ -52,7 +115,7 @@ const DiagonalText = () => {
                 );
             }
         });
-    }, []);
+    }, [responsive, positions]);
 
     return (
         <div
@@ -63,8 +126,8 @@ const DiagonalText = () => {
                 width: '100vw',
                 height: '100vh',
                 overflow: 'hidden',
-                zIndex: 1100, // High z-index to display on top of other page content
-                pointerEvents: 'none', // Prevent interaction
+                zIndex: 1100,
+                pointerEvents: 'none',
             }}
         >
             {sentences.map((sentence, i) => (
@@ -73,9 +136,9 @@ const DiagonalText = () => {
                     ref={el => (refs.current[i] = el)}
                     style={{
                         position: 'absolute',
-                        ...diagonalPositions[i],
-                        transform: 'rotate(-35.3deg)',
-                        fontSize: '1rem',
+                        ...(positions[i] || {}),
+                        transform: `rotate(${responsive.rotate}deg)`,
+                        fontSize: responsive.fontSize,
                         fontWeight: 500,
                         color: '#222',
                         opacity: 0,
