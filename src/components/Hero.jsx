@@ -8,7 +8,8 @@ import { gsap } from 'gsap'
 import RightSideSVG from './animations/rightside'
 import RightTextReveal from './animations/Righttext'
 import LeftTextReveal from './animations/Lefttext'
-import Model from './animations/Model'
+// import Model from './animations/Model' // Model page import commented out
+import DiagonalText from './animations/Diagonaltext'
 // import DiagonalPathProgress from './animations/path'
 // import Checkit from "./animations/checkit"
 
@@ -19,6 +20,7 @@ import Model from './animations/Model'
  * 3. LogoAnimation (7.5s)
  * 4. MultipleColorLines (12s) - divided:
  *    - MultipleColorLines progress: 7s
+ *    - DiagonalText appears on top of MultipleColorLines, before sides
  *    - LeftSideSVG slides in (1.5s)
  *    - RightSideSVG slides in (1.5s, after left finishes)
  *    - LeftTextReveal fades in (0.8s, after right side finishes)
@@ -28,6 +30,7 @@ import Model from './animations/Model'
  * 
  * Z-index stacking:
  * - MultipleColorLines (background)
+ * - DiagonalText (on top of MultipleColorLines, before sides)
  * - LeftSideSVG and RightSideSVG (on top of MultipleColorLines)
  * - LeftTextReveal and RightTextReveal (on top of their respective SVGs)
  * - Model (on top of all above, after text reveals)
@@ -83,20 +86,23 @@ const Hero = () => {
                 setShowThird(false)
                 setShowMultiColor(true)
                 setMultiColorPhase('progress')
+                // DiagonalText will be shown together with MultipleColorLines
             }
         })
-        // 4a. MultipleColorLines progress (2.7s)
+        // 4a. MultipleColorLines progress (2.4s)
         tl.to({}, {
             duration: 2.4, onComplete: () => {
                 setMultiColorPhase('sides')
                 setShowSides(true)
             }
         })
-        // 4b. Sides and text staggered sequence
-        // LeftSideSVG slides in
+        // 4b. LeftSideSVG appears
         tl.to({}, {
-            duration: 0.01, onComplete: () => setShowLeftSide(true)
+            duration: 2, onComplete: () => {
+                setShowLeftSide(true)
+            }
         })
+        // LeftSideSVG slides in
         tl.to({}, {
             duration: 0.8, onComplete: () => setShowRightSide(true)
         })
@@ -195,7 +201,7 @@ const Hero = () => {
                     <LogoAnimation />
                 </div>
             )}
-            {/* MultipleColorLines full page */}
+            {/* MultipleColorLines and DiagonalText full page */}
             {showMultiColor && (
                 <div
                     style={{
@@ -221,28 +227,20 @@ const Hero = () => {
                     >
                         <Multiplecolorlines phase={multiColorPhase} />
                     </div>
-                    {/* Model appears on top of MultipleColorLines */}
-                    {showModel && (
-                        <div
-                            ref={modelRef}
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100vw',
-                                height: '100vh',
-                                zIndex: 2,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                pointerEvents: 'none',
-                                opacity: 0, // Start faded out, gsap will fade in
-                                transition: 'opacity 0.8s',
-                            }}
-                        >
-                            <Model />
-                        </div>
-                    )}
+                    {/* DiagonalText is shown together with MultipleColorLines */}
+                    {/* <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100vw',
+                            height: '100vh',
+                            zIndex: 2, // On top of MultipleColorLines
+                            pointerEvents: 'none',
+                        }}
+                    >
+                        <DiagonalText />
+                    </div> */}
                 </div>
             )}
             {/* Sides and Text Reveals */}
@@ -272,6 +270,20 @@ const Hero = () => {
                     >
                         <Multiplecolorlines phase={multiColorPhase} />
                     </div>
+                    {/* DiagonalText stays permanently on top of everything */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100vw',
+                            height: '100vh',
+                            zIndex: 2, // On top of MultipleColorLines
+                            pointerEvents: 'none',
+                        }}
+                    >
+                        <DiagonalText />
+                    </div>
                     {/* Left Side SVG */}
                     {showLeftSide && (
                         <div
@@ -283,7 +295,7 @@ const Hero = () => {
                                 width: 0,
                                 height: '100vh',
                                 overflow: 'hidden',
-                                zIndex: 2,
+                                zIndex: 3,
                                 pointerEvents: 'none',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -300,7 +312,7 @@ const Hero = () => {
                                         left: 40,
                                         top: '50%',
                                         transform: 'translateY(-50%)',
-                                        zIndex: 3,
+                                        zIndex: 4,
                                         pointerEvents: 'none',
                                         opacity: 0, // Start faded out, gsap will fade in
                                     }}
@@ -321,7 +333,7 @@ const Hero = () => {
                                 width: 0,
                                 height: '100vh',
                                 overflow: 'hidden',
-                                zIndex: 2,
+                                zIndex: 3,
                                 pointerEvents: 'none',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -338,7 +350,7 @@ const Hero = () => {
                                         right: 40,
                                         top: '50%',
                                         transform: 'translateY(-50%)',
-                                        zIndex: 3,
+                                        zIndex: 4,
                                         pointerEvents: 'none',
                                         opacity: 0, // Start faded out, gsap will fade in
                                     }}
@@ -351,21 +363,7 @@ const Hero = () => {
                 </div>
             )}
             {/* Diagonal Path Progress - after all above */}
-            {/* {showDiagonalPath && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100vw',
-                        height: '100vh',
-                        zIndex: 1200,
-                        pointerEvents: 'none',
-                    }}
-                >
-                    <DiagonalPathProgress />
-                </div>
-            )} */}
+
         </div>
     )
 }
