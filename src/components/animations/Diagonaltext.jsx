@@ -21,7 +21,7 @@ const getResponsiveProps = (width) => {
     } else {
         // Desktop
         return {
-            rotate: -41,
+            rotate: -40.3,
             fontSize: '1.15rem',
         };
     }
@@ -44,13 +44,13 @@ const sentences = [
 
 // Responsive diagonal positions for each sentence
 const diagonalPositionsDesktop = [
-    { top: '50%', left: '1%', bottom: '10%' },
+    { top: '50%', left: '5%', bottom: '10%' },
     { top: '0', left: '39%' },
-    { top: '50%', left: '9%', bottom: '0%' },
-    { top: '30%', left: '36%' },
-    { top: '70%', left: '73%' },
-    { top: '30%', left: '48%' },
-    { top: '78%', left: '0%', bottom: '-10%' },
+    { top: '50%', left: '12%', bottom: '0%' },
+    { top: '30%', left: '37%' },
+    { top: '70%', left: '75%' },
+    { top: '30%', left: '49%' },
+    { top: '78%', left: '4%', bottom: '-10%' },
     { top: '30%', left: '60%' },
 ];
 const diagonalPositionsTablet = [
