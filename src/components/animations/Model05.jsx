@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
-// import model01 from './images/model_05.png';
+import model01 from '../../images/model_05.png';
 
-const model01 = './images/model_05.png';
 
 // Helper to get device type
 const getDeviceType = () => {
