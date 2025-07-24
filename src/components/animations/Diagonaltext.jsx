@@ -2,31 +2,33 @@ import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { getPlatformInfo, getSafeViewportHeight, getSafeViewportWidth, createResizeHandler } from '../../utils/platformUtils';
 
-// Responsive helper: get device type and rotate angle/font size
+// Responsive helper: get device type and rotate angle/font si
+//this is the apge to change an angle of a text
+
 const getResponsiveProps = (width) => {
     if (width <= 600) {
         // Mobile
         return {
-            rotate: -73,
+            rotate: -41,
             fontSize: '0.85rem',
         };
     } else if (width <= 1024) {
         // Tablet
         return {
-            rotate: -50,
+            rotate: -40,
             fontSize: '1rem',
         };
     } else {
         // Desktop
         return {
-            rotate: -35.0,
+            rotate: -41,
             fontSize: '1.15rem',
         };
     }
 };
 
 const sentences = [
-    "In order to remain a company that genuinely and sincerely supports all those with whom we have a connection,",
+    "company that genuinely and sincerely supports all those with whom we have a connection,",
     "A soft breeze carries the scent of blooming flowers.",
     // "Children's laughter echoes through the quiet park.",
     "Coffee shops buzz with the morning crowd.",
