@@ -1,0 +1,104 @@
+/* Platform-specific fixes for cross-browser compatibility */
+
+/* Safari/WebKit specific fixes */
+@supports (-webkit-appearance: none) {
+    /* Fix 100vh issues on Safari */
+    .full-height {
+        height: 100vh;
+        height: -webkit-fill-available;
+    }
+    
+    /* Smooth font rendering on Mac */
+    * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Hardware acceleration for better animation performance */
+    .animated-element {
+        -webkit-transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        -webkit-perspective: 1000px;
+    }
+    
+    /* Fix viewport units on iOS Safari */
+    .full-viewport {
+        width: 100vw;
+        width: -webkit-fill-available;
+        height: 100vh;
+        height: -webkit-fill-available;
+    }
+}
+
+/* Mac-specific optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 1.5) {
+    /* High DPI displays (Retina) */
+    .svg-element {
+        shape-rendering: geometricPrecision;
+    }
+    
+    .animated-image {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Fix for Mac Safari viewport calculation */
+@supports (height: 100dvh) {
+    .safe-viewport-height {
+        height: 100dvh;
+    }
+}
+
+@supports (width: 100dvw) {
+    .safe-viewport-width {
+        width: 100dvw;
+    }
+}
+
+/* Fallback for older Safari versions */
+@supports not (height: 100dvh) {
+    .safe-viewport-height {
+        height: calc(100vh - env(safe-area-inset-bottom, 0px));
+    }
+}
+
+/* Animation performance optimizations */
+.gsap-optimized {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Prevent text selection during animations */
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Fix for blurry transforms on Safari */
+.crisp-transform {
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+
+/* Optimize scrolling on iOS */
+.smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+}
+
+/* Fix for color rendering on different displays */
+.color-accurate {
+    color-rendering: optimizeQuality;
+}
+
+/* Media query for Mac/Safari specific adjustments */
+@media screen and (-webkit-min-device-pixel-ratio: 1) and (max-device-width: 1920px) and (min-device-width: 1024px) {
+    /* Likely Mac desktop */
+    .mac-optimized {
+        -webkit-font-feature-settings: "liga" 1, "kern" 1;
+        font-feature-settings: "liga" 1, "kern" 1;
+    }
+}

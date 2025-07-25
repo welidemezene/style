@@ -37,9 +37,9 @@ const getResponsiveStyles = () => {
                 pointerEvents: 'auto',
             },
             img: {
-                width: '120px',
-                height: '180px',
-                transform: 'rotate(-10deg)',
+                width: '220px',
+                height: '280px',
+                transform: 'rotate(0deg)',
             },
         };
     } else if (width < 1024) {
@@ -53,9 +53,9 @@ const getResponsiveStyles = () => {
                 pointerEvents: 'auto',
             },
             img: {
-                width: '170px',
-                height: '250px',
-                transform: 'rotate(2deg)',
+                width: '270px',
+                height: '350px',
+                transform: 'rotate(0deg)',
             },
         };
     } else {
@@ -64,14 +64,14 @@ const getResponsiveStyles = () => {
             container: {
                 position: 'absolute',
                 bottom: '-100px',
-                right: '0px',
+                right: '100px',
                 zIndex: 2,
                 pointerEvents: 'auto',
             },
             img: {
-                width: '220px',
-                height: '320px',
-                transform: 'rotate(5deg)',
+                width: '320px',
+                height: '420px',
+                transform: 'rotate(0deg)',
             },
         };
     }

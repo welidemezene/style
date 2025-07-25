@@ -19,16 +19,16 @@ const getResponsiveStyles = (device) => {
             return {
                 container: {
                     position: 'absolute',
-                    left: '50px',
+                    left: '80px',
                     top: '0px',
                     transform: 'translateX(-50%)',
                     zIndex: 2,
                     pointerEvents: 'auto',
                 },
                 img: {
-                    width: '120px',
-                    height: '180px',
-                    transform: 'rotate(-10deg)',
+                    width: '200px',
+                    height: '260px',
+                    transform: 'rotate(0deg)',
                     objectFit: 'cover',
                     borderRadius: '12px',
                     display: 'block',
@@ -41,15 +41,15 @@ const getResponsiveStyles = (device) => {
             return {
                 container: {
                     position: 'absolute',
-                    left: '0px',
-                    top: '-50px',
+                    left: '180px',
+                top: '250px',
                     zIndex: 2,
                     pointerEvents: 'auto',
                 },
                 img: {
-                    width: '170px',
-                    height: '250px',
-                    transform: 'rotate(-9deg)',
+                    width: '270px',
+                    height: '350px',
+                    transform: 'rotate(0deg)',
                     objectFit: 'cover',
                     borderRadius: '12px',
                     display: 'block',
@@ -63,15 +63,15 @@ const getResponsiveStyles = (device) => {
             return {
                 container: {
                     position: 'absolute',
-                    left: '800px',
-                    bottom: '-70px',
+                    left: '900px',
+                    bottom: '65px',
                     zIndex: 2,
                     pointerEvents: 'auto',
                 },
                 img: {
-                    width: '220px',
-                    height: '320px',
-                    transform: 'rotate(5deg)',
+                    width: '320px',
+                    height: '420px',
+                    transform: 'rotate(0deg)',
                     objectFit: 'cover',
                     borderRadius: '12px',
                     display: 'block',

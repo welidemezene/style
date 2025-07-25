@@ -1,6 +1,7 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { getPlatformInfo, getSafeViewportHeight, getSafeViewportWidth } from '../../utils/platformUtils';
 
 // Data for each bar: x, y, width, height, rotation, fill, stroke, strokeWidth, gradientId
 const bars = [
@@ -101,37 +102,58 @@ const SVG_HEIGHT = 768;
 
 const MultipleColorDiagonal = () => {
     const maskRectRefs = useRef([]);
+    const [viewportSize, setViewportSize] = useState({
+        width: typeof window !== 'undefined' ? window.innerWidth : 1366,
+        height: typeof window !== 'undefined' ? window.innerHeight : 768,
+    });
+
+    useEffect(() => {
+        const handleResize = () => {
+            setViewportSize({
+                width: window.innerWidth,
+                height: window.innerHeight,
+            });
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         // Clean up any previous animations
         gsap.killTweensOf(maskRectRefs.current);
 
+        const platformInfo = getPlatformInfo();
+
         // Animate each bar for smooth, continuous, non-stacking progress
         bars.forEach((bar, i) => {
             const rect = maskRectRefs.current[i];
             if (rect) {
-                // Set transform origin for scaling from left
-                gsap.set(rect, { transformOrigin: "0% 50%", scaleX: 0 });
+                // Set transform origin for scaling from left with platform optimizations
+                gsap.set(rect, { 
+                    transformOrigin: "0% 50%", 
+                    scaleX: 0,
+                    force3D: true,
+                    ...(platformInfo.isWebKit && {
+                        WebkitBackfaceVisibility: 'hidden',
+                    }),
+                });
 
                 // Assign a unique duration and delay for each bar for different speeds and phase offsets
-                // Duration between 0.6555s and 0.6566s, distributed across bars
-                const duration = 0.6555 + ((0.6566 - 0.6555) * (i % 2) / 6); // 0.6555s to 0.6566s, repeating every 7 bars
+                // Adjust timing for Mac/WebKit for smoother performance
+                const baseDuration = platformInfo.isMac ? 0.65 : 0.6555;
+                const durationVariation = platformInfo.isMac ? 0.005 : (0.6566 - 0.6555);
+                const duration = baseDuration + (durationVariation * (i % 2) / 6);
+                
                 // Phase offset so not all bars start at the same time
-                const delay = (i * 0.2) % duration;
+                const delay = (i * (platformInfo.isMac ? 0.18 : 0.2)) % duration;
 
-                // Animate scaleX from 0 to 1, then instantly reset to 0 for continuous progress
+                // Animate scaleX from 0 to 1
                 gsap.to(rect, {
                     scaleX: 1,
                     duration,
                     delay,
-                    ease: "power2.inOut",
-                    // repeat: -1,
-                    // repeatDelay: 0,
-                    // yoyo: false,
-                    // onRepeat: function () {
-                    //     // Instantly reset to 0 for continuous progress
-                    //     gsap.set(rect, { scaleX: 0 });
-                    // }
+                    ease: platformInfo.isWebKit ? "power2.inOut" : "power2.inOut",
                 });
             }
         });
@@ -142,27 +164,63 @@ const MultipleColorDiagonal = () => {
         };
     }, []);
 
+    const platformInfo = getPlatformInfo();
+    
+    // Calculate optimal viewBox based on viewport aspect ratio for better Mac compatibility
+    const aspectRatio = viewportSize.width / viewportSize.height;
+    const svgAspectRatio = SVG_WIDTH / SVG_HEIGHT;
+    
+    let adjustedViewBox = `0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`;
+    let preserveAspectRatio = "none";
+    
+    // For Mac Safari, use proper aspect ratio preservation to avoid distortion
+    if (platformInfo.isMac || platformInfo.isSafari) {
+        if (aspectRatio > svgAspectRatio) {
+            // Viewport is wider - adjust height
+            const adjustedHeight = SVG_WIDTH / aspectRatio;
+            const yOffset = (SVG_HEIGHT - adjustedHeight) / 2;
+            adjustedViewBox = `0 ${yOffset} ${SVG_WIDTH} ${adjustedHeight}`;
+        } else {
+            // Viewport is taller - adjust width  
+            const adjustedWidth = SVG_HEIGHT * aspectRatio;
+            const xOffset = (SVG_WIDTH - adjustedWidth) / 2;
+            adjustedViewBox = `${xOffset} 0 ${adjustedWidth} ${SVG_HEIGHT}`;
+        }
+        preserveAspectRatio = "xMidYMid slice";
+    }
+
     return (
         <div
             style={{
                 position: 'fixed',
                 top: 0,
                 left: 0,
-                width: '100vw',
-                height: '100vh',
+                width: getSafeViewportWidth(),
+                height: getSafeViewportHeight(),
                 overflow: 'hidden',
                 zIndex: 9999,
                 background: 'white',
+                ...(platformInfo.isWebKit && {
+                    WebkitTransform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden',
+                }),
             }}
         >
             <svg
                 width="100%"
                 height="100%"
-                viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+                viewBox={adjustedViewBox}
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                preserveAspectRatio="none"
-                style={{ display: 'block', width: '100vw', height: '100vh' }}
+                preserveAspectRatio={preserveAspectRatio}
+                style={{ 
+                    display: 'block', 
+                    width: getSafeViewportWidth(), 
+                    height: getSafeViewportHeight(),
+                    ...(platformInfo.isMac && {
+                        shapeRendering: 'geometricPrecision',
+                    }),
+                }}
             >
                 <g clipPath="url(#clip0_3499_109105)">
                     <rect width="1366" height="768" fill="white" />

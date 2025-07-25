@@ -1,3 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Import platform-specific fixes */
+@import './styles/platform-fixes.css';
