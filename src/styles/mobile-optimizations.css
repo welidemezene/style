@@ -1,0 +1,59 @@
+/* Mobile performance optimizations */
+
+/* Disable hardware acceleration issues on mobile */
+@media (max-width: 768px) {
+  * {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+  }
+
+  /* Optimize SVG rendering on mobile */
+  svg {
+    shape-rendering: optimizeSpeed;
+    text-rendering: optimizeSpeed;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  /* Reduce complexity of gradients on mobile */
+  linearGradient {
+    stop-opacity: 0.8; /* Slightly reduce gradient complexity */
+  }
+
+  /* Optimize images for mobile */
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+
+  /* Disable expensive filters on mobile */
+  .mobile-no-blur {
+    filter: none !important;
+  }
+
+  /* Optimize transforms for mobile */
+  .mobile-optimized-transform {
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High refresh rate optimizations */
+@media (min-resolution: 120dpi) {
+  .gsap-animation {
+    will-change: transform, opacity;
+  }
+}

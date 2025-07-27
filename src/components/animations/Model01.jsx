@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import model01 from '../../images/model_01.png';
+import { mobileOptimizedTo } from '../../utils/gsapConfig';
 
 
 // Helper to get device type
@@ -26,11 +27,11 @@ const getResponsiveStyles = (device) => {
                     pointerEvents: 'auto',
                 },
                 img: {
-                    width: '200px',
-                    height: '260px',
+                    width: '150px', // Reduced size for mobile
+                    height: '195px',
                     transform: 'rotate(0deg)',
                     objectFit: 'cover',
-                    borderRadius: '12px',
+                    borderRadius: '8px',
                     display: 'block',
                     maxWidth: '100%',
                     maxHeight: '100%',
@@ -99,41 +100,56 @@ const Model01 = () => {
     useEffect(() => {
         if (!imgRef.current) return;
 
-        // Vibrate and blur animation ONCE, then return to original image
-        const tl = gsap.timeline();
-        tl.to(imgRef.current, {
-            x: 6,
-            y: -7,
-            filter: 'blur(2.5px)',
-            duration: 0.07,
-            ease: 'power1.inOut',
-        })
-            .to(imgRef.current, {
-                x: -4,
-                y: 3,
+        const isMobile = window.innerWidth <= 768;
+        
+        // Simplified animation for mobile performance
+        if (isMobile) {
+            // Simple fade-in for mobile
+            mobileOptimizedTo(imgRef.current, {
+                opacity: 1,
+                duration: 0.4,
+                ease: 'power2.out',
+            });
+        } else {
+            // Full vibrate and blur animation for desktop
+            const tl = gsap.timeline();
+            tl.to(imgRef.current, {
+                x: 6,
+                y: -7,
                 filter: 'blur(2.5px)',
                 duration: 0.07,
                 ease: 'power1.inOut',
             })
-            .to(imgRef.current, {
-                x: 2,
-                y: -2,
-                filter: 'blur(1.5px)',
-                duration: 0.07,
-                ease: 'power1.inOut',
-            })
-            .to(imgRef.current, {
-                x: 0,
-                y: 0,
-                filter: 'blur(0px)',
-                duration: 0.07,
-                ease: 'power1.inOut',
-            });
+                .to(imgRef.current, {
+                    x: -4,
+                    y: 3,
+                    filter: 'blur(2.5px)',
+                    duration: 0.07,
+                    ease: 'power1.inOut',
+                })
+                .to(imgRef.current, {
+                    x: 2,
+                    y: -2,
+                    filter: 'blur(1.5px)',
+                    duration: 0.07,
+                    ease: 'power1.inOut',
+                })
+                .to(imgRef.current, {
+                    x: 0,
+                    y: 0,
+                    filter: 'blur(0px)',
+                    duration: 0.07,
+                    ease: 'power1.inOut',
+                });
+                
+            return () => {
+                tl.kill();
+            };
+        }
 
         return () => {
-            tl.kill();
             if (imgRef.current) {
-                gsap.set(imgRef.current, { x: 0, y: 0, filter: 'blur(0px)' });
+                gsap.set(imgRef.current, { x: 0, y: 0, filter: 'blur(0px)', opacity: 1 });
             }
         };
     }, []);
@@ -146,9 +162,13 @@ const Model01 = () => {
                 ref={imgRef}
                 src={model01}
                 alt="Model"
-                style={styles.img}
+                style={{
+                    ...styles.img,
+                    opacity: window.innerWidth <= 768 ? 0 : 1, // Start hidden on mobile
+                }}
                 loading="lazy"
                 draggable={false}
+                decoding="async"
             />
         </div>
     );

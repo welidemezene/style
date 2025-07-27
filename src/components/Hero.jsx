@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import ProgressBar from './animations/ProgressBar'
 import WhiteBackgroundPage from './animations/whitebj'
 import LogoAnimation from './animations/logo'
@@ -18,8 +18,22 @@ import Model06 from './animations/Model06'
 import Model07 from './animations/Model07'
 import Model08 from './animations/Model08'
 import { getPlatformInfo, getSafeViewportHeight, getSafeViewportWidth } from '../utils/platformUtils'
+import { initGSAPConfig, cleanupMobileAnimations } from '../utils/gsapConfig'
 
 const Hero = () => {
+    // Initialize GSAP for mobile optimization
+    useEffect(() => {
+        initGSAPConfig();
+        return () => {
+            cleanupMobileAnimations();
+        };
+    }, []);
+    
+    // Detect mobile for reduced animations
+    const isMobile = useMemo(() => {
+        return typeof window !== 'undefined' && window.innerWidth <= 768;
+    }, []);
+    
     // Step states
     const [showFirst, setShowFirst] = useState(true) // ProgressBar
     const [showSecond, setShowSecond] = useState(false) // WhiteBackgroundPage
@@ -54,72 +68,89 @@ const Hero = () => {
     const leftTextRef = useRef(null)
     const rightTextRef = useRef(null)
 
-    // Animation sequence
+    // Animation sequence - optimized for mobile
     useEffect(() => {
         const platformInfo = getPlatformInfo()
         const tl = gsap.timeline()
         
-        // Adjust timing for Mac/WebKit for smoother performance
-        const timingMultiplier = platformInfo.isMac ? 0.95 : 1
+        // Mobile timing optimizations
+        const timingMultiplier = isMobile ? 0.7 : (platformInfo.isMac ? 0.95 : 1)
         
-        // 1. ProgressBar (3.5s)
+        // 1. ProgressBar - reduced duration on mobile
         tl.to({}, {
-            duration: 3.7 * timingMultiplier, onComplete: () => {
+            duration: (isMobile ? 2.5 : 3.7) * timingMultiplier, onComplete: () => {
                 setShowFirst(false)
                 setShowSecond(true)
             }
         })
-        // 2. WhiteBackgroundPage (0.5s)
+        // 2. WhiteBackgroundPage
         tl.to({}, {
-            duration: 0.5, onComplete: () => {
+            duration: isMobile ? 0.3 : 0.5, onComplete: () => {
                 setShowSecond(false)
                 setShowThird(true)
             }
         })
-        // 3. LogoAnimation (4s)
+        // 3. LogoAnimation - reduced duration on mobile
         tl.to({}, {
-            duration: 4, onComplete: () => {
+            duration: isMobile ? 2.5 : 4, onComplete: () => {
                 setShowThird(false)
                 setShowMultiColor(true)
                 setMultiColorPhase('progress')
             }
         })
-        // 4a. MultipleColorLines progress (2.0s)
+        // 4a. MultipleColorLines progress - faster on mobile
         tl.to({}, {
-            duration: 2.0, onComplete: () => {
+            duration: isMobile ? 1.2 : 2.0, onComplete: () => {
                 setMultiColorPhase('sides')
                 setShowSides(true)
             }
         })
-        // 4b. LeftSideSVG appears
-        tl.to({}, {
-            duration: 2, onComplete: () => {
-                setShowLeftSide(true)
-            }
-        })
-        // LeftSideSVG slides in
-        tl.to({}, {
-            duration: 0.8, onComplete: () => setShowRightSide(true)
-        })
-        // RightSideSVG slides in after left
-        tl.to({}, {
-            duration: 0.8, onComplete: () => setShowLeftText(true)
-        })
-        // LeftTextReveal fades in after right side
-        tl.to({}, {
-            duration: 0.4, onComplete: () => setShowRightText(true)
-        })
-        // RightTextReveal fades in after left text
-        tl.to({}, {
-            duration: 0.4, onComplete: () => {
-                setMultiColorPhase('text')
-                setShowModels(true)
-            }
-        })
+        
+        // Skip some animations on mobile for performance
+        if (!isMobile) {
+            // 4b. LeftSideSVG appears
+            tl.to({}, {
+                duration: 2, onComplete: () => {
+                    setShowLeftSide(true)
+                }
+            })
+            // LeftSideSVG slides in
+            tl.to({}, {
+                duration: 0.8, onComplete: () => setShowRightSide(true)
+            })
+            // RightSideSVG slides in after left
+            tl.to({}, {
+                duration: 0.8, onComplete: () => setShowLeftText(true)
+            })
+            // LeftTextReveal fades in after right side
+            tl.to({}, {
+                duration: 0.4, onComplete: () => setShowRightText(true)
+            })
+            // RightTextReveal fades in after left text
+            tl.to({}, {
+                duration: 0.4, onComplete: () => {
+                    setMultiColorPhase('text')
+                    setShowModels(true)
+                }
+            })
+        } else {
+            // Simplified mobile sequence
+            tl.to({}, {
+                duration: 1, onComplete: () => {
+                    setShowLeftSide(true)
+                    setShowRightSide(true)
+                    setShowLeftText(true)
+                    setShowRightText(true)
+                    setMultiColorPhase('text')
+                    setShowModels(true)
+                }
+            })
+        }
+        
         return () => {
             tl.kill()
         }
-    }, [])
+    }, [isMobile])
 
     // Animate LeftSideSVG sliding in from left to right, when showLeftSide is true
     useEffect(() => {
@@ -165,19 +196,19 @@ const Hero = () => {
         }
     }, [showRightText])
 
-    // Show each model with a different delay (0.04s increment per model)
+    // Show models - optimized for mobile
     useEffect(() => {
         let timers = []
         if (showModels) {
-            // Order: 08, 01, 05, 04, 03, 02, 06, 07
-            timers.push(setTimeout(() => setShowModel08(true), 0))
-            timers.push(setTimeout(() => setShowModel01(true), 40))
-            timers.push(setTimeout(() => setShowModel05(true), 80))
-            timers.push(setTimeout(() => setShowModel04(true), 120))
-            timers.push(setTimeout(() => setShowModel03(true), 160))
-            timers.push(setTimeout(() => setShowModel02(true), 200))
-            timers.push(setTimeout(() => setShowModel06(true), 240))
-            timers.push(setTimeout(() => setShowModel07(true), 280))
+            // Mobile: show fewer models simultaneously, longer delays
+            const delay = isMobile ? 100 : 40;
+            const modelOrder = isMobile 
+                ? [setShowModel08, setShowModel01, setShowModel05, setShowModel04] // Only show 4 models on mobile
+                : [setShowModel08, setShowModel01, setShowModel05, setShowModel04, setShowModel03, setShowModel02, setShowModel06, setShowModel07];
+            
+            modelOrder.forEach((setModel, index) => {
+                timers.push(setTimeout(() => setModel(true), index * delay));
+            });
         } else {
             setShowModel08(false)
             setShowModel01(false)
@@ -191,7 +222,7 @@ const Hero = () => {
         return () => {
             timers.forEach(clearTimeout)
         }
-    }, [showModels])
+    }, [showModels, isMobile])
 
     return (
         <div>
@@ -355,17 +386,17 @@ const Hero = () => {
                             )}
                         </div>
                     )}
-                    {/* Show models in sequence with 0.04s delay for each */}
+                    {/* Show models - reduced on mobile */}
                     {showModels && (
                         <div>
                             {showModel08 && <Model08 />}
                             {showModel01 && <Model01 />}
                             {showModel05 && <Model05 />}
                             {showModel04 && <Model04 />}
-                            {showModel03 && <Model03 />}
-                            {showModel02 && <Model02 />}
-                            {showModel06 && <Model06 />}
-                            {showModel07 && <Model07 />}
+                            {!isMobile && showModel03 && <Model03 />}
+                            {!isMobile && showModel02 && <Model02 />}
+                            {!isMobile && showModel06 && <Model06 />}
+                            {!isMobile && showModel07 && <Model07 />}
                         </div>
                     )}
                 </div>

@@ -1,10 +1,12 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { gsap } from 'gsap';
 import { getPlatformInfo, getSafeViewportHeight, getSafeViewportWidth } from '../../utils/platformUtils';
+import { mobileOptimizedTo } from '../../utils/gsapConfig';
 
-// Data for each bar: x, y, width, height, rotation, fill, stroke, strokeWidth, gradientId
-const bars = [
+// Reduced bars for mobile performance - only show essential ones
+const getOptimizedBars = (isMobile) => {
+    const allBars = [
     { x: -665, y: 264, width: 1898.45, height: 22.51, rot: -40.37, fill: 'url(#paint0_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
     { x: -650.418, y: 281.15, width: 1898.45, height: 33.74, rot: -40.37, fill: 'url(#paint1_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
     { x: -628.566, y: 306.856, width: 1898.45, height: 33.74, rot: -40.37, fill: 'url(#paint2_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
@@ -85,38 +87,43 @@ const bars = [
     { x: 399.59, y: 1516.21, width: 1898.45, height: 16.9, rot: -40.37, fill: 'url(#paint77_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
     { x: 410.535, y: 1529.09, width: 1898.45, height: 8.48, rot: -40.37, fill: 'url(#paint78_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
     { x: 416.027, y: 1535.55, width: 1898.45, height: 22.51, rot: -40.37, fill: 'url(#paint79_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 430.609, y: 1552.7, width: 1898.45, height: 28.12, rot: -40.37, fill: 'url(#paint80_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 448.82, y: 1574.12, width: 1898.45, height: 22.51, rot: -40.37, fill: 'url(#paint81_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 463.402, y: 1591.27, width: 1898.45, height: 28.12, rot: -40.37, fill: 'url(#paint82_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 481.617, y: 1612.7, width: 1898.45, height: 8.48, rot: -40.37, fill: 'url(#paint83_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 487.109, y: 1619.16, width: 1898.45, height: 16.9, rot: -40.37, fill: 'url(#paint84_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 498.055, y: 1632.04, width: 1898.45, height: 33.74, rot: -40.37, fill: 'url(#paint85_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 519.91, y: 1657.74, width: 1898.45, height: 33.74, rot: -40.37, fill: 'url(#paint86_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 541.762, y: 1683.45, width: 1898.45, height: 28.12, rot: -40.37, fill: 'url(#paint87_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 559.977, y: 1704.87, width: 1898.45, height: 11.29, rot: -40.37, fill: 'url(#paint88_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-    // { x: 567.289, y: 1713.47, width: 1898.45, height: 28.12, rot: -40.37, fill: 'url(#paint89_linear_3499_109105)', stroke: 'white', strokeWidth: 2 },
-];
+    ];
+    
+    // For mobile, only render every 3rd bar for performance
+    return isMobile ? allBars.filter((_, index) => index % 3 === 0) : allBars;
+};
 
 const SVG_WIDTH = 1366;
 const SVG_HEIGHT = 768;
 
-const MultipleColorDiagonal = () => {
+const MultipleColorDiagonal = ({ phase = 'progress' }) => {
     const maskRectRefs = useRef([]);
     const [viewportSize, setViewportSize] = useState({
         width: typeof window !== 'undefined' ? window.innerWidth : 1366,
         height: typeof window !== 'undefined' ? window.innerHeight : 768,
     });
+    const isMobile = viewportSize.width <= 768;
+    
+    // Memoize bars to prevent recalculation
+    const bars = useMemo(() => getOptimizedBars(isMobile), [isMobile]);
 
     useEffect(() => {
+        let resizeTimeout;
         const handleResize = () => {
-            setViewportSize({
-                width: window.innerWidth,
-                height: window.innerHeight,
-            });
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                setViewportSize({
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                });
+            }, 100); // Debounce resize
         };
 
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            clearTimeout(resizeTimeout);
+        };
     }, []);
 
     useEffect(() => {
@@ -125,44 +132,60 @@ const MultipleColorDiagonal = () => {
 
         const platformInfo = getPlatformInfo();
 
-        // Animate each bar for smooth, continuous, non-stacking progress
-        bars.forEach((bar, i) => {
-            const rect = maskRectRefs.current[i];
-            if (rect) {
-                // Set transform origin for scaling from left with platform optimizations
-                gsap.set(rect, { 
-                    transformOrigin: "0% 50%", 
-                    scaleX: 0,
-                    force3D: true,
-                    ...(platformInfo.isWebKit && {
-                        WebkitBackfaceVisibility: 'hidden',
-                    }),
-                });
+        // Only animate when in progress phase
+        if (phase !== 'progress') return;
 
-                // Assign a unique duration and delay for each bar for different speeds and phase offsets
-                // Adjust timing for Mac/WebKit for smoother performance
-                const baseDuration = platformInfo.isMac ? 0.65 : 0.6555;
-                const durationVariation = platformInfo.isMac ? 0.005 : (0.6566 - 0.6555);
-                const duration = baseDuration + (durationVariation * (i % 2) / 6);
-                
-                // Phase offset so not all bars start at the same time
-                const delay = (i * (platformInfo.isMac ? 0.18 : 0.2)) % duration;
+        // Mobile optimizations: reduce animation complexity
+        const animationBatch = isMobile ? 5 : 10; // Process bars in smaller batches on mobile
+        
+        const animateBars = (startIndex = 0) => {
+            const endIndex = Math.min(startIndex + animationBatch, bars.length);
+            
+            for (let i = startIndex; i < endIndex; i++) {
+                const rect = maskRectRefs.current[i];
+                if (rect) {
+                    // Set transform origin for scaling from left with platform optimizations
+                    gsap.set(rect, { 
+                        transformOrigin: "0% 50%", 
+                        scaleX: 0,
+                        force3D: true,
+                        ...(platformInfo.isWebKit && {
+                            WebkitBackfaceVisibility: 'hidden',
+                        }),
+                    });
 
-                // Animate scaleX from 0 to 1
-                gsap.to(rect, {
-                    scaleX: 1,
-                    duration,
-                    delay,
-                    ease: platformInfo.isWebKit ? "power2.inOut" : "power2.inOut",
-                });
+                    // Mobile-optimized timing
+                    const baseDuration = isMobile ? 0.4 : (platformInfo.isMac ? 0.65 : 0.6555);
+                    const durationVariation = isMobile ? 0.002 : (platformInfo.isMac ? 0.005 : (0.6566 - 0.6555));
+                    const duration = baseDuration + (durationVariation * (i % 2) / 6);
+                    
+                    // Reduced delay for mobile
+                    const delayMultiplier = isMobile ? 0.08 : (platformInfo.isMac ? 0.18 : 0.2);
+                    const delay = (i * delayMultiplier) % duration;
+
+                    // Use mobile-optimized animation
+                    mobileOptimizedTo(rect, {
+                        scaleX: 1,
+                        duration,
+                        delay,
+                        ease: "power2.out",
+                    });
+                }
             }
-        });
+            
+            // Process next batch
+            if (endIndex < bars.length) {
+                setTimeout(() => animateBars(endIndex), isMobile ? 50 : 10);
+            }
+        };
+        
+        animateBars();
 
         // Clean up on unmount
         return () => {
             gsap.killTweensOf(maskRectRefs.current);
         };
-    }, []);
+    }, [bars, phase, isMobile]);
 
     const platformInfo = getPlatformInfo();
     
@@ -217,8 +240,11 @@ const MultipleColorDiagonal = () => {
                     display: 'block', 
                     width: getSafeViewportWidth(), 
                     height: getSafeViewportHeight(),
-                    ...(platformInfo.isMac && {
+                    ...(platformInfo.isMac && !isMobile && {
                         shapeRendering: 'geometricPrecision',
+                    }),
+                    ...(isMobile && {
+                        shapeRendering: 'optimizeSpeed',
                     }),
                 }}
             >
