@@ -7,3 +7,6 @@
 
 /* Import component isolation styles */
 @import './styles/component-isolation.css';
+
+/* Import mobile optimization styles */
+@import './styles/mobile-optimization.css';
