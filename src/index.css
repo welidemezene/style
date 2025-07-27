@@ -4,3 +4,6 @@
 
 /* Import platform-specific fixes */
 @import './styles/platform-fixes.css';
+
+/* Import component isolation styles */
+@import './styles/component-isolation.css';

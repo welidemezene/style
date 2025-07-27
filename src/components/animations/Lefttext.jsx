@@ -13,37 +13,38 @@ import newAidImg from '../../images/new_aid.png'
 // Responsive breakpoints and image/SVG sizes
 const getResponsiveProps = (width) => {
     if (width <= 600) {
-        // Mobile
+        // Mobile - ENLARGED
         return {
-            svgWidth: 340,
-            svgHeight: 80,
-            imageWidth: 180,
-            imageHeight: 44,
-            imageX: 0,
-            imageY: 18,
-            marginTop: 10,
+            svgWidth: 640,
+            svgHeight: 120,
+
+            imageWidth: 550, // enlarged from 200
+            imageHeight: 200, // enlarged from 100
+            imageX: 0, // center a bit more
+            imageY: 5,
+            marginTop: -90,
         }
     } else if (width <= 1024) {
-        // Tablet
+        // Tablet - ENLARGED
         return {
-            svgWidth: 600,
-            svgHeight: 120,
-            imageWidth: 280,
-            imageHeight: 70,
-            imageX: 80,
-            imageY: 28,
-            marginTop: 0,
+            svgWidth: 700,
+            svgHeight: 180,
+            imageWidth: 600, // enlarged from 420
+            imageHeight: 180, // enlarged from 150
+            imageX: 20, // adjust to center
+            imageY: 0,
+            marginTop: -10,
         }
     } else {
-        // Desktop
+        // Desktop - ENLARGED
         return {
-            svgWidth: 914,
-            svgHeight: 164,
-            imageWidth: 420,
-            imageHeight: 120,
-            imageX: 220,
-            imageY: 32,
-            marginTop: 0,
+            svgWidth: 1200,
+            svgHeight: 220,
+            imageWidth: 900, // enlarged from 420
+            imageHeight: 180, // enlarged from 120
+            imageX: 100, // adjust to center
+            imageY: 0,
+            marginTop: -60,
         }
     }
 }

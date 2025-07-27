@@ -34,44 +34,44 @@ const sentences = [
     "Coffee shops buzz with the morning crowd.",
     "In order to remain a company that genuinely and sincerely supports all those with whom we have a connection,",
     "established rules, or standard procedures.",
-    "In order to remain a company that genuinely and sincerely supports all those with whom we have a connection,",
+    // "In order to remain a company that genuinely and sincerely supports all those with whom we have a connection,",
     // "Clouds drift lazily across the blue sky.",
     // "Artists sketch dreams on blank canvases.",
     // "Footsteps tap on rain-washed sidewalks.",
     "In order to remain a company that genuinely and sincerely supports all those with whom we have a connection,",
-    // "Stars twinkle above, promising tomorrow.",
+    "Stars twinkle above, promising tomorrow.",
 ];
 
 // Responsive diagonal positions for each sentence
 const diagonalPositionsDesktop = [
     { top: '50%', left: '5%', bottom: '10%' },
     { top: '0', left: '39%' },
-    { top: '50%', left: '12%', bottom: '0%' },
+    { top: '50%', left: '13%', bottom: '0%' },
     { top: '30%', left: '37%' },
-    { top: '70%', left: '75%' },
+    { top: '70%', left: '76%' },
     { top: '30%', left: '49%' },
     { top: '78%', left: '4%', bottom: '-10%' },
-    { top: '30%', left: '60%' },
+    { top: '30%', left: '52%' },//none
 ];
 const diagonalPositionsTablet = [
-    { top: '8%', left: '2.5%' },
-    { top: '2%', left: '24%' },
-    { top: '48%', left: '7%' },
-    { top: '28%', left: '25%' },
-    { top: '68%', left: '60%' },
-    { top: '28%', left: '38%' },
+    { top: '8%', left: '7%' },//company
+    { top: '2%', left: '20%' },//top
+    { top: '48%', left: '15%' },//coffee
+    { top: '28%', left: '33%' },//in order
+    { top: '68%', left: '64%' },//established
+    { top: '28%', left: '50%' },//in order
     { top: '75%', left: '0%' },
     { top: '28%', left: '50%' },
 ];
 const diagonalPositionsMobile = [
-    { top: '6%', left: '1%' },
-    { top: '1%', left: '10%' },
-    { top: '44%', left: '3%' },
+    { top: '6%', left: '6%' },
+    { top: '1%', left: '13%' },
+    { top: '60%', left: '11%' },
     { top: '22%', left: '16%' },
-    { top: '62%', left: '38%' },
-    { top: '22%', left: '28%' },
+    { top: '62%', left: '35%' },
+    { top: '22%', left: '32%' },
     { top: '70%', left: '0%' },
-    { top: '22%', left: '44%' },
+    { top: '22%', left: '38%' },
 ];
 
 const getPositions = (width) => {
@@ -95,7 +95,7 @@ const DiagonalText = () => {
             setResponsive(getResponsiveProps(width));
             setPositions(getPositions(width));
         }, 150); // Debounce resize for better performance
-        
+
         window.addEventListener('resize', handleResize);
         // Initial set
         handleResize();
@@ -104,7 +104,7 @@ const DiagonalText = () => {
 
     useEffect(() => {
         const platformInfo = getPlatformInfo();
-        
+
         refs.current.forEach((el, i) => {
             if (el) {
                 // Set initial hardware acceleration for WebKit
@@ -118,10 +118,10 @@ const DiagonalText = () => {
 
                 gsap.fromTo(
                     el,
-                    { 
-                        opacity: 0, 
-                        y: platformInfo.isMac ? 35 : 40, 
-                        x: platformInfo.isMac ? -35 : -40 
+                    {
+                        opacity: 0,
+                        y: platformInfo.isMac ? 35 : 40,
+                        x: platformInfo.isMac ? -35 : -40
                     },
                     {
                         opacity: 1,
@@ -139,7 +139,7 @@ const DiagonalText = () => {
     return (
         <div
             style={{
-                position: 'fixed',
+                position: 'relative',
                 top: 0,
                 left: 0,
                 width: getSafeViewportWidth(),

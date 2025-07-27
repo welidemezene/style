@@ -63,8 +63,8 @@ const getResponsiveStyles = (device) => {
             return {
                 container: {
                     position: 'absolute',
-                    left: '400px',
-                    bottom: '-100px',
+                    left: '300px',
+                    bottom: '-130px',
                     zIndex: 2,
                     pointerEvents: 'auto',
                 },

@@ -130,8 +130,8 @@ const MultipleColorDiagonal = () => {
             const rect = maskRectRefs.current[i];
             if (rect) {
                 // Set transform origin for scaling from left with platform optimizations
-                gsap.set(rect, { 
-                    transformOrigin: "0% 50%", 
+                gsap.set(rect, {
+                    transformOrigin: "0% 50%",
                     scaleX: 0,
                     force3D: true,
                     ...(platformInfo.isWebKit && {
@@ -144,7 +144,7 @@ const MultipleColorDiagonal = () => {
                 const baseDuration = platformInfo.isMac ? 0.65 : 0.6555;
                 const durationVariation = platformInfo.isMac ? 0.005 : (0.6566 - 0.6555);
                 const duration = baseDuration + (durationVariation * (i % 2) / 6);
-                
+
                 // Phase offset so not all bars start at the same time
                 const delay = (i * (platformInfo.isMac ? 0.18 : 0.2)) % duration;
 
@@ -165,14 +165,14 @@ const MultipleColorDiagonal = () => {
     }, []);
 
     const platformInfo = getPlatformInfo();
-    
+
     // Calculate optimal viewBox based on viewport aspect ratio for better Mac compatibility
     const aspectRatio = viewportSize.width / viewportSize.height;
     const svgAspectRatio = SVG_WIDTH / SVG_HEIGHT;
-    
+
     let adjustedViewBox = `0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`;
     let preserveAspectRatio = "none";
-    
+
     // For Mac Safari, use proper aspect ratio preservation to avoid distortion
     if (platformInfo.isMac || platformInfo.isSafari) {
         if (aspectRatio > svgAspectRatio) {
@@ -213,9 +213,9 @@ const MultipleColorDiagonal = () => {
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 preserveAspectRatio={preserveAspectRatio}
-                style={{ 
-                    display: 'block', 
-                    width: getSafeViewportWidth(), 
+                style={{
+                    display: 'block',
+                    width: getSafeViewportWidth(),
                     height: getSafeViewportHeight(),
                     ...(platformInfo.isMac && {
                         shapeRendering: 'geometricPrecision',

@@ -9,7 +9,7 @@ import RightSideSVG from './animations/rightside'
 import RightTextReveal from './animations/Righttext'
 import LeftTextReveal from './animations/Lefttext'
 import DiagonalText from './animations/Diagonaltext'
-import Model01 from './animations/Model01'
+import Model01 from './animations/model01'
 import Model02 from './animations/Model02'
 import Model03 from './animations/Model03'
 import Model04 from './animations/Model04'
@@ -17,29 +17,23 @@ import Model05 from './animations/Model05'
 import Model06 from './animations/Model06'
 import Model07 from './animations/Model07'
 import Model08 from './animations/Model08'
-import { getPlatformInfo, getSafeViewportHeight, getSafeViewportWidth } from '../utils/platformUtils'
+import Heropage from '../images/deskl.png'
+import Iphone from '../images/iphl.png'
+import Ipad from '../images/tabl.png'
 
 const Hero = () => {
-    // Step states
-    const [showFirst, setShowFirst] = useState(true) // ProgressBar
-    const [showSecond, setShowSecond] = useState(false) // WhiteBackgroundPage
-    const [showThird, setShowThird] = useState(false) // LogoAnimation
-    const [showMultiColor, setShowMultiColor] = useState(false) // MultipleColorLines
-    const [showSides, setShowSides] = useState(false) // Left/Right Side SVGs
-
-    // For controlling the progress of MultipleColorLines, Sides, and Text
-    const [multiColorPhase, setMultiColorPhase] = useState('none') // 'progress', 'sides', 'text'
-
-    // For staggered SVG and text reveals
+    // Animation step states
+    const [showFirst, setShowFirst] = useState(true)
+    const [showSecond, setShowSecond] = useState(false)
+    const [showThird, setShowThird] = useState(false)
+    const [showMultiColor, setShowMultiColor] = useState(false)
+    const [showSides, setShowSides] = useState(false)
+    const [multiColorPhase, setMultiColorPhase] = useState('none')
     const [showLeftSide, setShowLeftSide] = useState(false)
     const [showRightSide, setShowRightSide] = useState(false)
     const [showLeftText, setShowLeftText] = useState(false)
     const [showRightText, setShowRightText] = useState(false)
-
-    // Show models after both text reveals
     const [showModels, setShowModels] = useState(false)
-
-    // Individual model display states
     const [showModel08, setShowModel08] = useState(false)
     const [showModel01, setShowModel01] = useState(false)
     const [showModel05, setShowModel05] = useState(false)
@@ -48,35 +42,57 @@ const Hero = () => {
     const [showModel02, setShowModel02] = useState(false)
     const [showModel06, setShowModel06] = useState(false)
     const [showModel07, setShowModel07] = useState(false)
+    const [animationFinished, setAnimationFinished] = useState(false)
 
     const leftSideRef = useRef(null)
     const rightSideRef = useRef(null)
     const leftTextRef = useRef(null)
     const rightTextRef = useRef(null)
+    const heroContainerRef = useRef(null)
+
+    // Responsive background image state
+    const [bgImage, setBgImage] = useState(Heropage)
+
+    // Responsive background image logic
+    useEffect(() => {
+        function updateBgImage() {
+            const width = window.innerWidth
+            if (width <= 600) {
+                setBgImage(Iphone)
+            } else if (width <= 1024) {
+                setBgImage(Ipad)
+            } else {
+                setBgImage(Heropage)
+            }
+        }
+        updateBgImage()
+        window.addEventListener('resize', updateBgImage)
+        return () => window.removeEventListener('resize', updateBgImage)
+    }, [])
 
     // Animation sequence
     useEffect(() => {
-        const platformInfo = getPlatformInfo()
+        // Store original overflow value
+        const originalOverflow = document.body.style.overflow
+
+        // Prevent scroll only during animation
+        if (heroContainerRef.current) {
+            heroContainerRef.current.style.overflow = 'hidden'
+        }
+
         const tl = gsap.timeline()
-        
-        // Adjust timing for Mac/WebKit for smoother performance
-        const timingMultiplier = platformInfo.isMac ? 0.95 : 1
-        
-        // 1. ProgressBar (3.5s)
         tl.to({}, {
-            duration: 3.7 * timingMultiplier, onComplete: () => {
+            duration: 3.7, onComplete: () => {
                 setShowFirst(false)
                 setShowSecond(true)
             }
         })
-        // 2. WhiteBackgroundPage (0.5s)
         tl.to({}, {
             duration: 0.5, onComplete: () => {
                 setShowSecond(false)
                 setShowThird(true)
             }
         })
-        // 3. LogoAnimation (4s)
         tl.to({}, {
             duration: 4, onComplete: () => {
                 setShowThird(false)
@@ -84,61 +100,65 @@ const Hero = () => {
                 setMultiColorPhase('progress')
             }
         })
-        // 4a. MultipleColorLines progress (2.0s)
         tl.to({}, {
             duration: 2.0, onComplete: () => {
                 setMultiColorPhase('sides')
                 setShowSides(true)
             }
         })
-        // 4b. LeftSideSVG appears
         tl.to({}, {
-            duration: 2, onComplete: () => {
-                setShowLeftSide(true)
-            }
+            duration: 2, onComplete: () => setShowLeftSide(true)
         })
-        // LeftSideSVG slides in
         tl.to({}, {
             duration: 0.8, onComplete: () => setShowRightSide(true)
         })
-        // RightSideSVG slides in after left
         tl.to({}, {
             duration: 0.8, onComplete: () => setShowLeftText(true)
         })
-        // LeftTextReveal fades in after right side
         tl.to({}, {
             duration: 0.4, onComplete: () => setShowRightText(true)
         })
-        // RightTextReveal fades in after left text
         tl.to({}, {
             duration: 0.4, onComplete: () => {
                 setMultiColorPhase('text')
                 setShowModels(true)
+                // Do NOT enable scroll yet, wait until models are shown
+                setTimeout(() => {
+                    setAnimationFinished(true)
+                    // Restore original overflow after animation is finished
+                    if (heroContainerRef.current) {
+                        heroContainerRef.current.style.overflow = originalOverflow || ''
+                    }
+                }, 610)
             }
         })
         return () => {
             tl.kill()
+            // Restore original overflow on cleanup
+            if (heroContainerRef.current) {
+                heroContainerRef.current.style.overflow = originalOverflow || ''
+            }
         }
     }, [])
 
-    // Animate LeftSideSVG sliding in from left to right, when showLeftSide is true
+    // Animate LeftSideSVG sliding in
     useEffect(() => {
         if (showLeftSide && leftSideRef.current) {
             gsap.fromTo(
                 leftSideRef.current,
                 { width: 0, opacity: 1 },
-                { width: getSafeViewportWidth(), duration: 0.8, ease: 'power2.inOut' }
+                { width: '100vw', duration: 0.8, ease: 'power2.inOut' }
             )
         }
     }, [showLeftSide])
 
-    // Animate RightSideSVG sliding in from right to left, when showRightSide is true
+    // Animate RightSideSVG sliding in
     useEffect(() => {
         if (showRightSide && rightSideRef.current) {
             gsap.fromTo(
                 rightSideRef.current,
                 { width: 0, opacity: 1 },
-                { width: getSafeViewportWidth(), duration: 0.8, ease: 'power2.inOut' }
+                { width: '100vw', duration: 0.8, ease: 'power2.inOut' }
             )
         }
     }, [showRightSide])
@@ -169,7 +189,6 @@ const Hero = () => {
     useEffect(() => {
         let timers = []
         if (showModels) {
-            // Order: 08, 01, 05, 04, 03, 02, 06, 07
             timers.push(setTimeout(() => setShowModel08(true), 0))
             timers.push(setTimeout(() => setShowModel01(true), 40))
             timers.push(setTimeout(() => setShowModel05(true), 80))
@@ -193,183 +212,247 @@ const Hero = () => {
         }
     }, [showModels])
 
+    // Use scrollable page with imported image as background after animation
     return (
-        <div>
-            {showFirst && (
-                <div>
-                    <ProgressBar />
-                </div>
-            )}
-            {showSecond && (
-                <div>
-                    <WhiteBackgroundPage />
-                </div>
-            )}
-            {showThird && (
-                <div>
-                    <LogoAnimation />
-                </div>
-            )}
-            {/* MultipleColorLines and DiagonalText full page */}
-            {showMultiColor && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: getSafeViewportWidth(),
-                        height: getSafeViewportHeight(),
-                        zIndex: 1000,
-                        pointerEvents: 'none',
-                    }}
-                >
-                    <div
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: getSafeViewportWidth(),
-                            height: getSafeViewportHeight(),
-                            zIndex: 1,
-                            pointerEvents: 'auto',
-                        }}
-                    >
-                        <Multiplecolorlines phase={multiColorPhase} />
-                    </div>
-                </div>
-            )}
-            {/* Sides and Text Reveals */}
-            {showSides && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: getSafeViewportWidth(),
-                        height: getSafeViewportHeight(),
-                        zIndex: 1100,
-                        pointerEvents: 'none',
-                    }}
-                >
-                    {/* MultipleColorLines as background for sides */}
-                    <div
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: getSafeViewportWidth(),
-                            height: getSafeViewportHeight(),
-                            zIndex: 1,
-                            pointerEvents: 'auto',
-                        }}
-                    >
-                        <Multiplecolorlines phase={multiColorPhase} />
-                    </div>
-                    {/* DiagonalText stays permanently on top of everything */}
-                    <div
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: getSafeViewportWidth(),
-                            height: getSafeViewportHeight(),
-                            zIndex: 2,
-                            pointerEvents: 'none',
-                        }}
-                    >
-                        <DiagonalText />
-                    </div>
-                    {/* Left Side SVG */}
-                    {showLeftSide && (
+        <div
+            ref={heroContainerRef}
+            className="hero-container"
+            style={{
+                minHeight: '100vh',
+                position: 'relative',
+                width: '100%',
+                background: animationFinished
+                    ? `url(${bgImage}) center center / cover no-repeat`
+                    : undefined,
+                transition: 'background 0.6s',
+                // Prevent scroll on the main container as a fallback
+                overflow: animationFinished ? undefined : 'hidden',
+            }}
+        >
+            {/* Animation overlays */}
+            {!(animationFinished) && (showFirst || showSecond || showThird || showMultiColor || showSides || showModels) && (
+                <>
+                    {showFirst && (
+                        <div className="hero-animation-layer">
+                            <ProgressBar />
+                        </div>
+                    )}
+                    {showSecond && (
+                        <div className="hero-animation-layer">
+                            <WhiteBackgroundPage />
+                        </div>
+                    )}
+                    {showThird && (
+                        <div className="hero-animation-layer">
+                            <LogoAnimation />
+                        </div>
+                    )}
+                    {showMultiColor && (
                         <div
-                            ref={leftSideRef}
+                            className="hero-multicolor-layer"
                             style={{
-                                position: 'absolute',
+                                position: 'fixed',
                                 top: 0,
                                 left: 0,
-                                width: 0,
-                                height: getSafeViewportHeight(),
-                                overflow: 'hidden',
-                                zIndex: 3,
+                                width: '100vw',
+                                height: '100vh',
+                                zIndex: 1000,
                                 pointerEvents: 'none',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'flex-start',
                             }}
                         >
-                            <LeftSideSVG />
-                            {/* LeftTextReveal on top of LeftSideSVG */}
-                            {showLeftText && (
-                                <div
-                                    ref={leftTextRef}
-                                    style={{
-                                        position: 'absolute',
-                                        left: 40,
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
-                                        zIndex: 4,
-                                        pointerEvents: 'none',
-                                        opacity: 0,
-                                    }}
-                                >
-                                    <LeftTextReveal />
-                                </div>
-                            )}
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100vw',
+                                    height: '100vh',
+                                    zIndex: 1,
+                                    pointerEvents: 'auto',
+                                }}
+                            >
+                                <Multiplecolorlines phase={multiColorPhase} />
+                            </div>
                         </div>
                     )}
-                    {/* Right Side SVG */}
-                    {showRightSide && (
+                    {showSides && (
                         <div
-                            ref={rightSideRef}
+                            className="hero-sides-layer"
                             style={{
-                                position: 'absolute',
+                                position: 'fixed',
                                 top: 0,
-                                right: 0,
-                                width: 0,
-                                height: getSafeViewportHeight(),
-                                overflow: 'hidden',
-                                zIndex: 3,
+                                left: 0,
+                                width: '100vw',
+                                height: '100vh',
+                                zIndex: 1100,
                                 pointerEvents: 'none',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'flex-end',
                             }}
                         >
-                            <RightSideSVG />
-                            {/* RightTextReveal on top of RightSideSVG */}
-                            {showRightText && (
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100vw',
+                                    height: '100vh',
+                                    zIndex: 1,
+                                    pointerEvents: 'auto',
+                                }}
+                            >
+                                <Multiplecolorlines phase={multiColorPhase} />
+                            </div>
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100vw',
+                                    height: '100vh',
+                                    zIndex: 2,
+                                    pointerEvents: 'none',
+                                }}
+                            >
+                                <DiagonalText />
+                            </div>
+                            {showLeftSide && (
                                 <div
-                                    ref={rightTextRef}
+                                    ref={leftSideRef}
+                                    className="hero-left-side"
                                     style={{
                                         position: 'absolute',
-                                        right: 40,
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
-                                        zIndex: 4,
+                                        top: 0,
+                                        left: 0,
+                                        width: 0,
+                                        height: '100vh',
+                                        overflow: 'hidden',
+                                        zIndex: 3,
                                         pointerEvents: 'none',
-                                        opacity: 0,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-start',
                                     }}
                                 >
-                                    <RightTextReveal />
+                                    <LeftSideSVG />
+                                    {showLeftText && (
+                                        <div
+                                            ref={leftTextRef}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 40,
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                zIndex: 4,
+                                                pointerEvents: 'none',
+                                                opacity: 0,
+                                            }}
+                                        >
+                                            <LeftTextReveal />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {showRightSide && (
+                                <div
+                                    ref={rightSideRef}
+                                    className="hero-right-side"
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        right: 0,
+                                        width: 0,
+                                        height: '100vh',
+                                        overflow: 'hidden',
+                                        zIndex: 3,
+                                        pointerEvents: 'none',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-end',
+                                    }}
+                                >
+                                    <RightSideSVG />
+                                    {showRightText && (
+                                        <div
+                                            ref={rightTextRef}
+                                            style={{
+                                                position: 'absolute',
+                                                right: 40,
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                zIndex: 4,
+                                                pointerEvents: 'none',
+                                                opacity: 0,
+                                            }}
+                                        >
+                                            <RightTextReveal />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {showModels && (
+                                <div className="hero-models-container">
+                                    {showModel08 && <Model08 />}
+                                    {showModel01 && <Model01 />}
+                                    {showModel05 && <Model05 />}
+                                    {showModel04 && <Model04 />}
+                                    {showModel03 && <Model03 />}
+                                    {showModel02 && <Model02 />}
+                                    {showModel06 && <Model06 />}
+                                    {showModel07 && <Model07 />}
                                 </div>
                             )}
                         </div>
                     )}
-                    {/* Show models in sequence with 0.04s delay for each */}
-                    {showModels && (
-                        <div>
-                            {showModel08 && <Model08 />}
-                            {showModel01 && <Model01 />}
-                            {showModel05 && <Model05 />}
-                            {showModel04 && <Model04 />}
-                            {showModel03 && <Model03 />}
-                            {showModel02 && <Model02 />}
-                            {showModel06 && <Model06 />}
-                            {showModel07 && <Model07 />}
-                        </div>
-                    )}
-                </div>
+                </>
             )}
+            {/* After animation, render a scroll anchor to next page */}
+            {animationFinished && (
+                <div style={{ width: '100%', height: '1px' }} tabIndex={-1} aria-hidden="true"></div>
+            )}
+
+            {/* Scoped styles for Hero component */}
+            <style>
+                {`
+                    .hero-container {
+                        width: 100%;
+                        min-height: 100vh;
+                        position: relative;
+                        overflow-x: hidden;
+                    }
+                    
+                    .hero-animation-layer {
+                        position: relative;
+                        width: 100%;
+                        height: 100vh;
+                    }
+                    
+                    .hero-multicolor-layer,
+                    .hero-sides-layer {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100vw;
+                        height: 100vh;
+                        pointer-events: none;
+                    }
+                    
+                    .hero-left-side,
+                    .hero-right-side {
+                        position: absolute;
+                        top: 0;
+                        height: 100vh;
+                        overflow: hidden;
+                        pointer-events: none;
+                        display: flex;
+                        align-items: center;
+                    }
+                    
+                    .hero-models-container {
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                    }
+                `}
+            </style>
         </div>
     )
 }

@@ -1,9 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react'
 import englishTextImg from '../../images/second.png'
+import Doubletext from '../../images/doublejapan.png'
 
 /**
  * Responsive fade-in image for right text:
- * - Uses an image for the English text (src/images/second.png).
+ * - Uses an image for the English text (src/images/second.png) on tablet/desktop.
+ * - Uses double japantext image (src/images/doublejapan.png) for mobile.
  * - Fades in as a whole.
  * - No SVG text, just the image.
  * - Responsive: image size and position adjust for mobile/tablet/desktop.
@@ -21,39 +23,49 @@ const BREAKPOINTS = {
     tablet: 1024,
 }
 
+// Enlarged text/image sizes for all breakpoints
 const getImageProps = (width) => {
     if (width <= BREAKPOINTS.mobile) {
-        // Mobile
+        // Mobile - ENLARGED
         return {
-            width: 220,
-            height: 36,
-            x: 60,
-            y: 22,
-            svgWidth: 340,
-            svgHeight: 80,
-            marginTop: 86,
+            width: 440,      // fit svg width
+            height: 60,     // fit svg height
+            x: 60,            // start at left
+            y: 69,            // start at top
+            svgWidth: 430,
+            svgHeight: 150,
+            marginTop: 0,
+            img: Doubletext, // Use double japantext for mobile
+            alt: "Double Japan Text",
+            ariaLabel: "Double Japan Text"
         }
     } else if (width <= BREAKPOINTS.tablet) {
-        // Tablet
+        // Tablet - ENLARGED
         return {
-            width: 350,
-            height: 56,
-            x: 90,
-            y: 32,
+            width: 500,
+            height: 160,
+            x: 110,
+            y: 120,
             svgWidth: 700,
-            svgHeight: 120,
-            marginTop: 120,
+            svgHeight: 250,
+            marginTop: 0,
+            img: englishTextImg,
+            alt: "English Text",
+            ariaLabel: "English Text"
         }
     } else {
-        // Desktop
+        // Desktop - ENLARGED
         return {
-            width: 520,
-            height: 80,
-            x: 100,
-            y: 50,
-            svgWidth: 914,
-            svgHeight: 164,
-            marginTop: 200,
+            width: 900,
+            height: 180,
+            x: 250,
+            y: 0,
+            svgWidth: 1200,
+            svgHeight: 220,
+            marginTop: 150,
+            img: englishTextImg,
+            alt: "English Text",
+            ariaLabel: "English Text"
         }
     }
 }
@@ -81,7 +93,7 @@ const RightTextReveal = () => {
         }
     }, [windowWidth])
 
-    const { width, height, x, y, svgWidth, svgHeight, marginTop } = getImageProps(windowWidth)
+    const { width, height, x, y, svgWidth, svgHeight, marginTop, img, alt, ariaLabel } = getImageProps(windowWidth)
 
     return (
         <div
@@ -100,16 +112,9 @@ const RightTextReveal = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 style={{ display: 'block', width: svgWidth, height: svgHeight }}
             >
-                {/* Optional: SVG background pattern/rect can be added here if needed */}
-                {/* <rect
-                    y="0.615234"
-                    width={svgWidth - 100}
-                    height={svgHeight - 1}
-                    fill="#F0F0F0"
-                /> */}
                 <g ref={imgGroupRef} style={{ opacity: 0 }}>
                     <image
-                        href={englishTextImg}
+                        href={img}
                         x={x}
                         y={y}
                         width={width}
@@ -119,9 +124,10 @@ const RightTextReveal = () => {
                             pointerEvents: 'none',
                             userSelect: 'none'
                         }}
-                        alt="English Text"
-                        aria-label="English Text"
+                        alt={alt}
+                        aria-label={ariaLabel}
                         draggable="false"
+                        preserveAspectRatio="xMidYMid meet"
                     />
                 </g>
             </svg>

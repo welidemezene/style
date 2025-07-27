@@ -63,7 +63,7 @@ const getStylesByDevice = (device) => {
                 container: {
                     position: 'absolute',
                     top: '-70px',
-                    left: '980px',
+                    left: '700px',
                     zIndex: 2,
                     pointerEvents: 'auto',
                 },
