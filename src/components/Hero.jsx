@@ -53,6 +53,9 @@ const Hero = () => {
     // Responsive background image state
     const [bgImage, setBgImage] = useState(Heropage)
 
+    // Check if mobile for animation optimization
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600
+
     // Responsive background image logic
     useEffect(() => {
         function updateBgImage() {
@@ -70,7 +73,7 @@ const Hero = () => {
         return () => window.removeEventListener('resize', updateBgImage)
     }, [])
 
-    // Animation sequence
+    // Animation sequence with mobile optimization
     useEffect(() => {
         // Store original overflow value
         const originalOverflow = document.body.style.overflow
@@ -80,46 +83,71 @@ const Hero = () => {
             heroContainerRef.current.style.overflow = 'hidden'
         }
 
+        // Mobile-optimized animation durations
+        const durations = isMobile ? {
+            first: 2.5,    // Reduced from 3.7
+            second: 0.3,   // Reduced from 0.5
+            third: 2.8,    // Reduced from 4.0
+            multiColor: 1.4, // Reduced from 2.0
+            sides: 1.4,    // Reduced from 2.0
+            leftSide: 0.6, // Reduced from 0.8
+            rightSide: 0.6, // Reduced from 0.8
+            leftText: 0.3, // Reduced from 0.4
+            rightText: 0.3, // Reduced from 0.4
+            models: 0.4    // Reduced from 0.61
+        } : {
+            first: 3.7,
+            second: 0.5,
+            third: 4.0,
+            multiColor: 2.0,
+            sides: 2.0,
+            leftSide: 0.8,
+            rightSide: 0.8,
+            leftText: 0.4,
+            rightText: 0.4,
+            models: 0.61
+        }
+
         const tl = gsap.timeline()
         tl.to({}, {
-            duration: 3.7, onComplete: () => {
+            duration: durations.first, onComplete: () => {
                 setShowFirst(false)
                 setShowSecond(true)
             }
         })
         tl.to({}, {
-            duration: 0.5, onComplete: () => {
+            duration: durations.second, onComplete: () => {
                 setShowSecond(false)
                 setShowThird(true)
             }
         })
         tl.to({}, {
-            duration: 4, onComplete: () => {
+            duration: durations.third, onComplete: () => {
                 setShowThird(false)
                 setShowMultiColor(true)
                 setMultiColorPhase('progress')
             }
         })
         tl.to({}, {
-            duration: 2.0, onComplete: () => {
+            duration: durations.multiColor, onComplete: () => {
                 setMultiColorPhase('sides')
                 setShowSides(true)
             }
         })
         tl.to({}, {
-            duration: 2, onComplete: () => setShowLeftSide(true)
+            duration: durations.sides, onComplete: () => setShowLeftSide(true)
         })
         tl.to({}, {
-            duration: 0.8, onComplete: () => setShowRightSide(true)
+            duration: durations.leftSide, onComplete: () => setShowRightSide(true)
         })
         tl.to({}, {
-            duration: 0.8, onComplete: () => setShowLeftText(true)
+            duration: durations.rightSide, onComplete: () => setShowLeftText(true)
         })
         tl.to({}, {
-            duration: 0.4, onComplete: () => setShowRightText(true)
+            duration: durations.leftText, onComplete: () => setShowRightText(true)
         })
         tl.to({}, {
-            duration: 0.4, onComplete: () => {
+            duration: durations.rightText, onComplete: () => {
                 setMultiColorPhase('text')
                 setShowModels(true)
                 // Do NOT enable scroll yet, wait until models are shown
@@ -129,7 +157,7 @@ const Hero = () => {
                     if (heroContainerRef.current) {
                         heroContainerRef.current.style.overflow = originalOverflow || ''
                     }
-                }, 610)
+                }, durations.models * 1000)
             }
         })
         return () => {
@@ -139,64 +167,89 @@ const Hero = () => {
                 heroContainerRef.current.style.overflow = originalOverflow || ''
             }
         }
-    }, [])
+    }, [isMobile])
 
-    // Animate LeftSideSVG sliding in
+    // Animate LeftSideSVG sliding in with mobile optimization
     useEffect(() => {
         if (showLeftSide && leftSideRef.current) {
+            const duration = isMobile ? 0.6 : 0.8
             gsap.fromTo(
                 leftSideRef.current,
                 { width: 0, opacity: 1 },
-                { width: '100vw', duration: 0.8, ease: 'power2.inOut' }
+                {
+                    width: '100vw',
+                    duration: duration,
+                    ease: 'power2.inOut',
+                    ...(isMobile && { force3D: true })
+                }
             )
         }
-    }, [showLeftSide])
+    }, [showLeftSide, isMobile])
 
-    // Animate RightSideSVG sliding in
+    // Animate RightSideSVG sliding in with mobile optimization
     useEffect(() => {
         if (showRightSide && rightSideRef.current) {
+            const duration = isMobile ? 0.6 : 0.8
             gsap.fromTo(
                 rightSideRef.current,
                 { width: 0, opacity: 1 },
-                { width: '100vw', duration: 0.8, ease: 'power2.inOut' }
+                {
+                    width: '100vw',
+                    duration: duration,
+                    ease: 'power2.inOut',
+                    ...(isMobile && { force3D: true })
+                }
             )
         }
-    }, [showRightSide])
+    }, [showRightSide, isMobile])
 
-    // Fade in LeftTextReveal
+    // Fade in LeftTextReveal with mobile optimization
     useEffect(() => {
         if (showLeftText && leftTextRef.current) {
+            const duration = isMobile ? 0.3 : 0.4
             gsap.fromTo(
                 leftTextRef.current,
                 { opacity: 0 },
-                { opacity: 1, duration: 0.4, ease: 'power2.inOut' }
+                {
+                    opacity: 1,
+                    duration: duration,
+                    ease: 'power2.inOut',
+                    ...(isMobile && { force3D: true })
+                }
             )
         }
-    }, [showLeftText])
+    }, [showLeftText, isMobile])
 
-    // Fade in RightTextReveal
+    // Fade in RightTextReveal with mobile optimization
     useEffect(() => {
         if (showRightText && rightTextRef.current) {
+            const duration = isMobile ? 0.3 : 0.4
             gsap.fromTo(
                 rightTextRef.current,
                 { opacity: 0 },
-                { opacity: 1, duration: 0.4, ease: 'power2.inOut' }
+                {
+                    opacity: 1,
+                    duration: duration,
+                    ease: 'power2.inOut',
+                    ...(isMobile && { force3D: true })
+                }
             )
         }
-    }, [showRightText])
+    }, [showRightText, isMobile])
 
-    // Show each model with a different delay (0.04s increment per model)
+    // Show each model with a different delay (optimized for mobile)
     useEffect(() => {
         let timers = []
         if (showModels) {
+            const delay = isMobile ? 30 : 40 // Reduced delay for mobile
             timers.push(setTimeout(() => setShowModel08(true), 0))
-            timers.push(setTimeout(() => setShowModel01(true), 40))
-            timers.push(setTimeout(() => setShowModel05(true), 80))
-            timers.push(setTimeout(() => setShowModel04(true), 120))
-            timers.push(setTimeout(() => setShowModel03(true), 160))
-            timers.push(setTimeout(() => setShowModel02(true), 200))
-            timers.push(setTimeout(() => setShowModel06(true), 240))
-            timers.push(setTimeout(() => setShowModel07(true), 280))
+            timers.push(setTimeout(() => setShowModel01(true), delay))
+            timers.push(setTimeout(() => setShowModel05(true), delay * 2))
+            timers.push(setTimeout(() => setShowModel04(true), delay * 3))
+            timers.push(setTimeout(() => setShowModel03(true), delay * 4))
+            timers.push(setTimeout(() => setShowModel02(true), delay * 5))
+            timers.push(setTimeout(() => setShowModel06(true), delay * 6))
+            timers.push(setTimeout(() => setShowModel07(true), delay * 7))
         } else {
             setShowModel08(false)
             setShowModel01(false)
@@ -210,13 +263,13 @@ const Hero = () => {
         return () => {
             timers.forEach(clearTimeout)
         }
-    }, [showModels])
+    }, [showModels, isMobile])
 
     // Use scrollable page with imported image as background after animation
     return (
         <div
             ref={heroContainerRef}
-            className="hero-container"
+            className={`hero-container mobile-safe-height mobile-touch-optimized ${isMobile ? 'mobile-container' : ''}`}
             style={{
                 minHeight: '100vh',
                 position: 'relative',
@@ -233,23 +286,23 @@ const Hero = () => {
             {!(animationFinished) && (showFirst || showSecond || showThird || showMultiColor || showSides || showModels) && (
                 <>
                     {showFirst && (
-                        <div className="hero-animation-layer">
+                        <div className={`hero-animation-layer ${isMobile ? 'mobile-optimized-animation' : ''}`}>
                             <ProgressBar />
                         </div>
                     )}
                     {showSecond && (
-                        <div className="hero-animation-layer">
+                        <div className={`hero-animation-layer ${isMobile ? 'mobile-optimized-animation' : ''}`}>
                             <WhiteBackgroundPage />
                         </div>
                     )}
                     {showThird && (
-                        <div className="hero-animation-layer">
+                        <div className={`hero-animation-layer ${isMobile ? 'mobile-optimized-animation' : ''}`}>
                             <LogoAnimation />
                         </div>
                     )}
                     {showMultiColor && (
                         <div
-                            className="hero-multicolor-layer"
+                            className={`hero-multicolor-layer ${isMobile ? 'mobile-fixed-element mobile-optimized-animation' : ''}`}
                             style={{
                                 position: 'fixed',
                                 top: 0,
@@ -277,7 +330,7 @@ const Hero = () => {
                     )}
                     {showSides && (
                         <div
-                            className="hero-sides-layer"
+                            className={`hero-sides-layer ${isMobile ? 'mobile-fixed-element mobile-optimized-animation' : ''}`}
                             style={{
                                 position: 'fixed',
                                 top: 0,
@@ -317,7 +370,7 @@ const Hero = () => {
                             {showLeftSide && (
                                 <div
                                     ref={leftSideRef}
-                                    className="hero-left-side"
+                                    className={`hero-left-side ${isMobile ? 'mobile-optimized-animation' : ''}`}
                                     style={{
                                         position: 'absolute',
                                         top: 0,
@@ -354,7 +407,7 @@ const Hero = () => {
                             {showRightSide && (
                                 <div
                                     ref={rightSideRef}
-                                    className="hero-right-side"
+                                    className={`hero-right-side ${isMobile ? 'mobile-optimized-animation' : ''}`}
                                     style={{
                                         position: 'absolute',
                                         top: 0,
@@ -389,7 +442,7 @@ const Hero = () => {
                                 </div>
                             )}
                             {showModels && (
-                                <div className="hero-models-container">
+                                <div className={`hero-models-container ${isMobile ? 'mobile-optimized-animation' : ''}`}>
                                     {showModel08 && <Model08 />}
                                     {showModel01 && <Model01 />}
                                     {showModel05 && <Model05 />}
@@ -450,6 +503,30 @@ const Hero = () => {
                         position: relative;
                         width: 100%;
                         height: 100%;
+                    }
+                    
+                    /* Mobile-specific optimizations */
+                    @media (max-width: 600px) {
+                        .hero-container {
+                            min-height: 100vh;
+                            height: 100vh;
+                            overflow: hidden;
+                        }
+                        
+                        .hero-animation-layer {
+                            height: 100vh;
+                        }
+                        
+                        .hero-multicolor-layer,
+                        .hero-sides-layer {
+                            width: 100vw;
+                            height: 100vh;
+                        }
+                        
+                        .hero-left-side,
+                        .hero-right-side {
+                            height: 100vh;
+                        }
                     }
                 `}
             </style>

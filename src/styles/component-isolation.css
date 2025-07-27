@@ -83,6 +83,65 @@ body {
     position: relative;
 }
 
+/* Mobile-specific component optimizations */
+@media (max-width: 600px) {
+
+    .hero-container,
+    .full-page-japanese-container {
+        width: 100%;
+        overflow-x: hidden;
+        min-height: 100vh;
+        height: 100vh;
+    }
+
+    .hero-wrapper,
+    .japanese-wrapper {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    /* Mobile performance optimizations */
+    .hero-container *,
+    .full-page-japanese-container * {
+        will-change: auto;
+    }
+
+    /* Mobile touch optimizations */
+    .hero-container,
+    .full-page-japanese-container {
+        touch-action: manipulation;
+        -webkit-touch-callout: none;
+    }
+
+    /* Mobile safe area handling */
+    .hero-container,
+    .full-page-japanese-container {
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        padding-left: env(safe-area-inset-left, 0px);
+        padding-right: env(safe-area-inset-right, 0px);
+    }
+}
+
+/* Very small mobile devices */
+@media (max-width: 480px) {
+
+    .hero-container,
+    .full-page-japanese-container {
+        padding: 0 8px;
+    }
+}
+
+/* Mobile landscape optimizations */
+@media (max-width: 600px) and (orientation: landscape) {
+
+    .hero-container,
+    .full-page-japanese-container {
+        min-height: 100vh;
+        height: 100vh;
+    }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
 

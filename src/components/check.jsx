@@ -31,6 +31,9 @@ const FullPageJapanese = () => {
     const idxRef = useRef(0);
     const [containerRef, triggered] = useScrollTrigger(0.2);
 
+    // Check if mobile for optimization
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
+
     // Animate text writing (slower speed, human-like)
     useEffect(() => {
         if (!triggered) return;
@@ -38,21 +41,28 @@ const FullPageJapanese = () => {
             const timeout = setTimeout(() => {
                 setDisplayed((prev) => prev + TEXT[idxRef.current]);
                 idxRef.current += 1;
-            }, 120 + Math.random() * 80); // Human-like typing speed
+            }, isMobile ? 80 + Math.random() * 40 : 120 + Math.random() * 80); // Faster on mobile
             return () => clearTimeout(timeout);
         }
-    }, [displayed, triggered]);
+    }, [displayed, triggered, isMobile]);
 
     // Animate fade-in on scroll
     useEffect(() => {
         if (triggered && containerRef.current) {
+            const duration = isMobile ? 0.8 : 1.1; // Faster on mobile
             gsap.fromTo(
                 containerRef.current,
                 { opacity: 0, y: 40 },
-                { opacity: 1, y: 0, duration: 1.1, ease: "power2.out" }
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: duration,
+                    ease: "power2.out",
+                    ...(isMobile && { force3D: true })
+                }
             );
         }
-    }, [triggered, containerRef]);
+    }, [triggered, containerRef, isMobile]);
 
     // Render the animated text with a single gradient line for the first 8 letters
     function renderAnimatedText() {
@@ -121,7 +131,7 @@ const FullPageJapanese = () => {
     return (
         <div
             ref={containerRef}
-            className={`full-page-japanese-container ${displayed.length >= TEXT.length ? 'animation-complete' : ''}`}
+            className={`full-page-japanese-container mobile-safe-height mobile-touch-optimized ${displayed.length >= TEXT.length ? 'animation-complete' : ''} ${isMobile ? 'mobile-container' : ''}`}
             style={{
                 minHeight: "100vh",
                 width: "100%",
@@ -136,7 +146,7 @@ const FullPageJapanese = () => {
             }}
         >
             <div
-                className="full-page-japanese-content"
+                className={`full-page-japanese-content ${isMobile ? 'mobile-safe-area-container' : ''}`}
                 style={{
                     width: "100%",
                     maxWidth: "100%",
@@ -146,9 +156,9 @@ const FullPageJapanese = () => {
                 }}
             >
                 <p
-                    className="full-page-japanese-text"
+                    className={`full-page-japanese-text ${isMobile ? 'mobile-text mobile-font-optimized' : ''}`}
                     style={{
-                        fontSize: "clamp(2rem, 6vw, 4.8rem)",
+                        fontSize: isMobile ? "clamp(1rem, 4vw, 1.8rem)" : "clamp(2rem, 6vw, 4.8rem)",
                         fontWeight: 900,
                         lineHeight: 1.4,
                         letterSpacing: "0.04em",
@@ -171,7 +181,7 @@ const FullPageJapanese = () => {
                     {/* Blinking cursor while writing and not yet finished */}
                     {displayed.length < TEXT.length && triggered && (
                         <span
-                            className="full-page-japanese-cursor"
+                            className={`full-page-japanese-cursor ${isMobile ? 'mobile-optimized-animation' : ''}`}
                             style={{
                                 display: "inline-block",
                                 width: "1ch",
@@ -234,13 +244,25 @@ const FullPageJapanese = () => {
           
           @media (max-width: 600px) {
             .full-page-japanese-text {
-              font-size: clamp(1rem, 6vw, 1.6rem);
+              font-size: clamp(1rem, 4vw, 1.8rem);
               padding: 0;
               margin: 0;
+              line-height: 1.3;
             }
             .full-page-japanese-content {
               padding: 0;
               margin: 0;
+            }
+            .full-page-japanese-container {
+              min-height: 100vh;
+              height: 100vh;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            .full-page-japanese-text {
+              font-size: clamp(0.9rem, 3.5vw, 1.6rem);
+              line-height: 1.2;
             }
           }
         `}
