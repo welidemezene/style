@@ -3,6 +3,7 @@ import ProgressBar from './animations/ProgressBar'
 import WhiteBackgroundPage from './animations/whitebj'
 import LogoAnimation from './animations/logo'
 import Multiplecolorlines from './animations/MultipleColorDiagonal'
+import Multimobilecolor from './animations/multimobilecolor'
 import LeftSideSVG from './animations/leftside'
 import { gsap } from 'gsap'
 import RightSideSVG from './animations/rightside'
@@ -55,6 +56,9 @@ const Hero = () => {
 
     // Check if mobile for animation optimization
     const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600
+
+    // Responsive color lines component selection
+    const ColorLinesComponent = isMobile ? Multimobilecolor : Multiplecolorlines
 
     // Responsive background image logic
     useEffect(() => {
@@ -324,7 +328,7 @@ const Hero = () => {
                                     pointerEvents: 'auto',
                                 }}
                             >
-                                <Multiplecolorlines phase={multiColorPhase} />
+                                <ColorLinesComponent phase={multiColorPhase} />
                             </div>
                         </div>
                     )}
@@ -352,7 +356,7 @@ const Hero = () => {
                                     pointerEvents: 'auto',
                                 }}
                             >
-                                <Multiplecolorlines phase={multiColorPhase} />
+                                <ColorLinesComponent phase={multiColorPhase} />
                             </div>
                             <div
                                 style={{
