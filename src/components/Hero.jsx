@@ -3,6 +3,7 @@ import ProgressBar from './animations/ProgressBar'
 import WhiteBackgroundPage from './animations/whitebj'
 import LogoAnimation from './animations/logo'
 import Multiplecolorlines from './animations/MultipleColorDiagonal'
+import Multimobilecolor from './animations/multimobilecolor'
 import LeftSideSVG from './animations/leftside'
 import { gsap } from 'gsap'
 import RightSideSVG from './animations/rightside'
@@ -56,6 +57,9 @@ const Hero = () => {
     // Check if mobile for animation optimization
     const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600
 
+    // Responsive color lines component selection
+    const ColorLinesComponent = isMobile ? Multimobilecolor : Multiplecolorlines
+
     // Responsive background image logic
     useEffect(() => {
         function updateBgImage() {
@@ -85,16 +89,16 @@ const Hero = () => {
 
         // Mobile-optimized animation durations
         const durations = isMobile ? {
-            first: 2.5,    // Reduced from 3.7
+            first: 3.5,    // Reduced from 3.7
             second: 0.3,   // Reduced from 0.5
-            third: 2.8,    // Reduced from 4.0
-            multiColor: 1.4, // Reduced from 2.0
+            third: 3.7,    // Reduced from 4.0
+            multiColor: 1.6, // Reduced from 2.0
             sides: 1.4,    // Reduced from 2.0
             leftSide: 0.6, // Reduced from 0.8
             rightSide: 0.6, // Reduced from 0.8
             leftText: 0.3, // Reduced from 0.4
             rightText: 0.3, // Reduced from 0.4
-            models: 0.4    // Reduced from 0.61
+            models: 0.5    // Reduced from 0.61
         } : {
             first: 3.7,
             second: 0.5,
@@ -324,7 +328,7 @@ const Hero = () => {
                                     pointerEvents: 'auto',
                                 }}
                             >
-                                <Multiplecolorlines phase={multiColorPhase} />
+                                <ColorLinesComponent phase={multiColorPhase} />
                             </div>
                         </div>
                     )}
@@ -352,7 +356,7 @@ const Hero = () => {
                                     pointerEvents: 'auto',
                                 }}
                             >
-                                <Multiplecolorlines phase={multiColorPhase} />
+                                <ColorLinesComponent phase={multiColorPhase} />
                             </div>
                             <div
                                 style={{
